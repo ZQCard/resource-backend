@@ -1,12 +1,12 @@
 package controllers
 
 import (
-	"resource-backend/models"
-	"resource-backend/pkg/config"
 	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"net/http"
+	"resource-backend/models"
+	"resource-backend/pkg/config"
 )
 
 func Videos(c *gin.Context) {
@@ -53,6 +53,39 @@ func Videos(c *gin.Context) {
 	// 获取数据总记录数
 	respData["totalCount"] = models.GetVideosTotalCount(maps)
 
-	// 数据处理
+	c.JSON(http.StatusOK, respData)
+}
+
+func VideoAdd(c *gin.Context)  {
+
+	respData := make(map[string]interface{})
+	respData["code"] = http.StatusOK
+
+	name := c.PostForm("name")
+	href := c.PostForm("href")
+	typeOfVideoName := c.PostForm("type")
+
+	var typeOfVideo int
+	if typeOfVideoName == "classic"{
+		typeOfVideo = 0
+	} else if typeOfVideoName == "anime"{
+		typeOfVideo = 1
+	} else {
+		respData["code"] = http.StatusBadRequest
+		respData["message"] = "请求参数错误"
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+
+	// 数据验证
+
+	err := models.AddVideo(name, href, typeOfVideo)
+	if err != nil {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = "添加数据失败," + err.Error()
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	respData["message"] = "添加成功"
 	c.JSON(http.StatusOK, respData)
 }

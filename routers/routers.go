@@ -17,7 +17,9 @@ func InitRouter() *gin.Engine {
 	// 使用跨域中间件
 	router.Use(cors.Cors())
 
+	// 视频列表
 	router.GET("/videos", controllers.Videos)
-
+	// 添加视频
+	router.POST("/video", controllers.VideoAdd)
 	return router
 }
