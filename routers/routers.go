@@ -1,8 +1,8 @@
 package routers
 
 import (
-	"gin-crud/controllers"
-	"gin-crud/middleware/cors"
+	"resource-backend/controllers"
+	"resource-backend/middleware/cors"
 	"github.com/gin-gonic/gin"
 )
 

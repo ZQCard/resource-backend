@@ -2,7 +2,7 @@ package models
 
 import (
 	"fmt"
-	"gin-crud/pkg/config"
+	"resource-backend/pkg/config"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"log"

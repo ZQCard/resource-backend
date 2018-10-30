@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"gin-crud/models"
-	"gin-crud/pkg/config"
+	"resource-backend/models"
+	"resource-backend/pkg/config"
 	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"

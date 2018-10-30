@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gin-crud/pkg/config"
-	"gin-crud/routers"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"resource-backend/pkg/config"
+	"resource-backend/routers"
 )
 
 func main() {
