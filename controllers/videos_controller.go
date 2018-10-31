@@ -77,8 +77,6 @@ func VideoAdd(c *gin.Context)  {
 		return
 	}
 
-	// 数据验证
-
 	err := models.AddVideo(name, href, typeOfVideo)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
@@ -87,5 +85,111 @@ func VideoAdd(c *gin.Context)  {
 		return
 	}
 	respData["message"] = "添加成功"
+	c.JSON(http.StatusOK, respData)
+}
+
+func VideoView(c *gin.Context) {
+	respData := make(map[string]interface{})
+	respData["code"] = http.StatusOK
+	// 条件
+	maps := make(map[string]interface{})
+	id := com.StrTo(c.Query("id")).MustInt()
+
+	exist, err := models.GetVideoById(id)
+	if err != nil {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = err
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	if !exist {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = "数据不存在"
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+
+	maps["id"] = id
+	respData["info"] = models.GetVideoView(maps)
+	c.JSON(http.StatusOK, respData)
+}
+
+func VideoUpdate(c *gin.Context)  {
+	respData := make(map[string]interface{})
+	respData["code"] = http.StatusOK
+
+	id := com.StrTo(c.PostForm("id")).MustInt()
+	exist, err := models.GetVideoById(id)
+	if err != nil {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = err
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	if !exist {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = "数据不存在"
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	name := c.PostForm("name")
+	href := c.PostForm("href")
+	typeOfVideoName := c.PostForm("type")
+
+	var typeOfVideo int
+	if typeOfVideoName == "classic"{
+		typeOfVideo = 0
+	} else if typeOfVideoName == "anime"{
+		typeOfVideo = 1
+	} else {
+		respData["code"] = http.StatusBadRequest
+		respData["message"] = "请求参数错误"
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+
+	video := models.Videos{
+		Name:name,
+		Href:href,
+		Type:typeOfVideo,
+	}
+	err = models.PutVideoUpdate(id, video)
+	if err != nil {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = "修改数据失败," + err.Error()
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	respData["message"] = "修改成功"
+	c.JSON(http.StatusOK, respData)
+}
+
+func VideoDelete(c *gin.Context)  {
+	respData := make(map[string]interface{})
+	respData["code"] = http.StatusOK
+
+	id := com.StrTo(c.Query("id")).MustInt()
+	exist, err := models.GetVideoById(id)
+	if err != nil {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = err
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	if !exist {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = "数据不存在"
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+
+	err = models.DeleteVideo(id)
+	if err != nil {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = err
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	respData["message"] = "删除成功"
 	c.JSON(http.StatusOK, respData)
 }

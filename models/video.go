@@ -51,15 +51,54 @@ func AddVideo(name string, url string, typeOfVideo int) error {
 		Href: url,
 		Type: typeOfVideo,
 	}
-
 	// 数据验证
 	err := video.Validate()
 	if err != nil {
 		return err
 	}
-
-
 	if err := db.Create(&video).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// 根据ID查找数据是否存在
+func GetVideoById(id int) (bool, error) {
+	var video Videos
+	err := db.Select("id").Where("id = ?", id).First(&video).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return false, nil
+	}
+
+	if video.ID > 0  {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+// 查看数据详情
+func GetVideoView(maps interface{}) (video Videos) {
+	db.Where(maps).First(&video)
+	return
+}
+
+// 修改数据
+func PutVideoUpdate(id int,video Videos) (err error) {
+	// 数据验证
+	err = video.Validate()
+	if err != nil {
+		return err
+	}
+	if err = db.Model(&Videos{}).Where("id = ?", id).Update(video).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// 删除数据
+func DeleteVideo(id int) (err error) {
+	if err := db.Where("id = ?", id).Delete(&Videos{}).Error; err != nil {
 		return err
 	}
 	return nil
