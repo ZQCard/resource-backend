@@ -6,14 +6,14 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type Videos struct {
+type Video struct {
 	Model
 	Type int   `json:"type"`
 	Name string `json:"name"`
 	Href string `json:"href"`
 }
 
-func (v Videos)Validate() error {
+func (v Video)Validate() error {
 	return validation.ValidateStruct(&v,
 		// 名称不得为空,且大小为1-30字
 		validation.Field(
@@ -29,13 +29,13 @@ func (v Videos)Validate() error {
 
 // 获取记录总数
 func GetVideosTotalCount(maps interface{}) (count int) {
-	db.Model(&Videos{}).Where(maps).Count(&count)
+	db.Model(&Video{}).Where(maps).Count(&count)
 	return
 }
 
 // 获取数据列表
-func GetVideosList(page int, pageSize int, maps interface{}) ([]Videos, error) {
-	var videos []Videos
+func GetVideosList(page int, pageSize int, maps interface{}) ([]Video, error) {
+	var videos []Video
 
 	err := db.Where(maps).Offset((page - 1) * pageSize).Limit(pageSize).Find(&videos).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -46,7 +46,7 @@ func GetVideosList(page int, pageSize int, maps interface{}) ([]Videos, error) {
 
 // 添加数据
 func AddVideo(name string, url string, typeOfVideo int) error {
-	video := Videos{
+	video := Video{
 		Name: name,
 		Href: url,
 		Type: typeOfVideo,
@@ -63,34 +63,29 @@ func AddVideo(name string, url string, typeOfVideo int) error {
 }
 
 // 根据ID查找数据是否存在
-func GetVideoById(id int) (bool, error) {
-	var video Videos
+func GetVideoById(id int) (bool) {
+	var video Video
 	err := db.Select("id").Where("id = ?", id).First(&video).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return false, nil
+		return false
 	}
-
-	if video.ID > 0  {
-		return true, nil
-	}
-
-	return false, nil
+	return true
 }
 
 // 查看数据详情
-func GetVideoView(maps interface{}) (video Videos) {
+func GetVideoView(maps interface{}) (video Video) {
 	db.Where(maps).First(&video)
 	return
 }
 
 // 修改数据
-func PutVideoUpdate(id int,video Videos) (err error) {
+func PutVideoUpdate(id int,video Video) (err error) {
 	// 数据验证
 	err = video.Validate()
 	if err != nil {
 		return err
 	}
-	if err = db.Model(&Videos{}).Where("id = ?", id).Update(video).Error; err != nil {
+	if err = db.Model(&Video{}).Where("id = ?", id).Update(video).Error; err != nil {
 		return err
 	}
 	return nil
@@ -98,7 +93,7 @@ func PutVideoUpdate(id int,video Videos) (err error) {
 
 // 删除数据
 func DeleteVideo(id int) (err error) {
-	if err := db.Where("id = ?", id).Delete(&Videos{}).Error; err != nil {
+	if err := db.Where("id = ?", id).Delete(&Video{}).Error; err != nil {
 		return err
 	}
 	return nil

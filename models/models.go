@@ -41,7 +41,6 @@ func init()  {
 		log.Fatalf("数据库连接失败, : %s", err)
 	}
 
-	db.SingularTable(true)
 	db.DB().SetMaxIdleConns(10)
 	db.DB().SetMaxIdleConns(100)
 }
