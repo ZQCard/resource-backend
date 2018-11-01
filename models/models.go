@@ -2,10 +2,10 @@ package models
 
 import (
 	"fmt"
-	"resource-backend/pkg/config"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"log"
+	"resource-backend/pkg/config"
 	"time"
 )
 

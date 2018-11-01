@@ -25,7 +25,7 @@ func Videos(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, respData)
 		return
 	}
-
+	maps["type"] = typeOfVideo
 	// 分页参数
 	PageSize := com.StrTo(c.DefaultQuery("pageSize", config.AppSetting.PageSize)).MustInt()
 	PageNum := com.StrTo(c.DefaultQuery("page", config.AppSetting.PageNum)).MustInt()

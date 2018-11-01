@@ -1,9 +1,9 @@
 package routers
 
 import (
+	"github.com/gin-gonic/gin"
 	"resource-backend/controllers"
 	"resource-backend/middleware/cors"
-	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() *gin.Engine {
