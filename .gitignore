@@ -1,2 +1,2 @@
-.idea/
-conf/app.ini
+/.idea
+/conf/local.ini
