@@ -10,7 +10,7 @@ import (
 
 func main() {
 	gin.SetMode(config.ServerSettings.RunMode)
-
+	
 	router := routers.InitRouter()
 
 	s := &http.Server{

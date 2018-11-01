@@ -37,7 +37,7 @@ var cfg *goconfig.ConfigFile
 
 func init() {
 	var err error
-	cfg, err = goconfig.LoadConfigFile("conf/app.ini")
+	cfg, err = goconfig.LoadConfigFile("conf/app.ini", "conf/local.ini")
 	if err != nil {
 		log.Fatalf("加载配置文件出错 : %s", err)
 	}
