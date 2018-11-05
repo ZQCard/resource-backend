@@ -1,6 +1,10 @@
 package models
 
-import "github.com/jinzhu/gorm"
+import (
+	"crypto/md5"
+	"encoding/hex"
+	"github.com/jinzhu/gorm"
+)
 
 type User struct {
 	ID int `gorm:"primary_key" json:"id"`
@@ -10,6 +14,9 @@ type User struct {
 
 func CheckAuth(username, password string) (bool, error) {
 	var user User
+	h := md5.New()
+	h.Write([]byte(password))
+	password = hex.EncodeToString(h.Sum(nil))
 	err := db.Select("id").Where(User{Username:username, Password:password}).First(&user).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return false, err
