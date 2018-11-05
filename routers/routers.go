@@ -22,9 +22,12 @@ func InitRouter() *gin.Engine {
 	router.POST("/auth", controllers.Login)
 
 	// 视频列表
-	api := router.Group("/")
+	api := router.Group("/", controllers.UserInfo)
 	api.Use(jwt.JWT())
 	{
+		// 用户信息
+		api.GET("/user", )
+		// 影视专区
 		api.GET("/videos", controllers.Videos)
 		// 添加视频
 		api.POST("/video", controllers.VideoAdd)

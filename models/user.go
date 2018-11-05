@@ -29,3 +29,11 @@ func CheckAuth(username, password string) (bool, error) {
 	return false, nil
 }
 
+func GetUserInfo(username, password string) (user User) {
+	h := md5.New()
+	h.Write([]byte(password))
+	password = hex.EncodeToString(h.Sum(nil))
+	db.Where(User{Username:username, Password:password}).First(&user)
+	return
+}
+
