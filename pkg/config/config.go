@@ -29,6 +29,7 @@ type App struct {
 	BaseUrl  string
 	PageSize string
 	PageNum  string
+	JwtSecret string
 }
 
 var AppSetting = &App{}
@@ -87,6 +88,11 @@ func init() {
 	AppSetting.BaseUrl, err = cfg.GetValue("app", "BaseUrl")
 	if err != nil {
 		log.Fatalf("读取键值出错(%s) : %s", "app.PageNum", err)
+	}
+
+	AppSetting.JwtSecret, err = cfg.GetValue("app", "JwtSecret")
+	if err != nil {
+		log.Fatalf("读取键值出错(%s) : %s", "app.JwtSecret", err)
 	}
 }
 
