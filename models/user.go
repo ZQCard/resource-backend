@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"github.com/jinzhu/gorm"
+	"resource-backend/utils"
 )
 
 type User struct {
@@ -30,9 +31,7 @@ func CheckAuth(username, password string) (bool, error) {
 }
 
 func GetUserInfo(username, password string) (user User) {
-	h := md5.New()
-	h.Write([]byte(password))
-	password = hex.EncodeToString(h.Sum(nil))
+	password = utils.EncodeMD5(password)
 	db.Where(User{Username:username, Password:password}).First(&user)
 	return
 }
