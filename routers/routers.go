@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"resource-backend/controllers"
 	"resource-backend/middleware/cors"
 )
@@ -17,14 +18,16 @@ func InitRouter() *gin.Engine {
 	// 使用跨域中间件
 	router.Use(cors.Cors())
 
+	// 静态文件访问
+	router.StaticFS("/static", http.Dir("static"))
 	// 获取token
 	router.POST("/auth", controllers.Login)
 
-	// 视频列表
-	api := router.Group("/", controllers.UserInfo)
+	// 权限控制
+	api := router.Group("/")
 	{
 		// 用户信息
-		api.GET("/user", )
+		api.GET("/user", controllers.UserInfo)
 		// 影视专区
 		api.GET("/videos", controllers.Videos)
 		// 添加视频
@@ -35,6 +38,9 @@ func InitRouter() *gin.Engine {
 		api.PUT("/video", controllers.VideoUpdate)
 		// 删除视频
 		api.DELETE("/video", controllers.VideoDelete)
+
+		// 文件上传
+		api.POST("/upload", controllers.Upload)
 	}
 	return router
 }
