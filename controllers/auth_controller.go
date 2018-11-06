@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -12,7 +11,6 @@ import (
 func Login(c *gin.Context)  {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
-	fmt.Println(username, password)
 	data := make(map[string]interface{})
 
 	isExist, _ := models.CheckAuth(username, password)

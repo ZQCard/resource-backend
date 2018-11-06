@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"resource-backend/controllers"
 	"resource-backend/middleware/cors"
-	"resource-backend/middleware/jwt"
 )
 
 func InitRouter() *gin.Engine {
@@ -23,7 +22,6 @@ func InitRouter() *gin.Engine {
 
 	// 视频列表
 	api := router.Group("/", controllers.UserInfo)
-	api.Use(jwt.JWT())
 	{
 		// 用户信息
 		api.GET("/user", )

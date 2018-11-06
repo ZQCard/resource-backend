@@ -13,10 +13,10 @@ func JWT() gin.HandlerFunc {
 
 		code = http.StatusOK
 
-		token := c.Query("token")
+		token := c.DefaultQuery("token", "1.1.1")
 
 		if token == "" {
-			code = http.StatusBadRequest
+			code = http.StatusUnauthorized
 		}
 
 		claims, err := utils.ParseToken(token)

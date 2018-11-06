@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"resource-backend/pkg/config"
 	"time"
