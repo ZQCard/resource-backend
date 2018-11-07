@@ -16,12 +16,12 @@ func Upload(c *gin.Context)  {
 		data["message"] = "文件上传错误:"+ err.Error()
 	}
 
-	fName := upload.GetImageName(fHeader.Filename)
-	savePath := upload.GetImagePath()
+	fName := upload.GetName(fHeader.Filename)
+	savePath := upload.GetPath()
 
 	src := savePath + fName
 
-	if !upload.CheckImageExt(fName) || !upload.CheckImageSize(file) {
+	if !upload.CheckExt(fName) || !upload.CheckSize(file) {
 		code = http.StatusForbidden
 		data["message"] = "文件格式不符合"
 	}
@@ -29,7 +29,7 @@ func Upload(c *gin.Context)  {
 	// 已存在文件直接返回url
 	if upload.CheckExist(src) {
 		code = http.StatusOK
-		data["url"] = upload.GetImageFullUrl(fName)
+		data["url"] = upload.GetFullUrl(fName)
 		c.JSON(code,data)
 		return
 	}
@@ -44,6 +44,6 @@ func Upload(c *gin.Context)  {
 		data["message"] = "文件保存失败"
 	}
 
-	data["url"] = upload.GetImageFullUrl(fName)
+	data["url"] = upload.GetName(fName)
 	c.JSON(code,data)
 }

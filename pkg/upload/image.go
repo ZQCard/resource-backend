@@ -17,22 +17,22 @@ func GetFullBaseUrl() string {
 	return config.AppSetting.BaseUrl + ":" + strconv.Itoa(config.ServerSettings.HTTPPort)
 }
 
-func GetImageFullUrl(name string)  string {
-	return GetFullBaseUrl() + "/" + GetImagePath() + name
+func GetFullUrl(name string)  string {
+	return GetFullBaseUrl() + "/" + GetPath() + name
 }
 
-func GetImageName(name string) string {
+func GetName(name string) string {
 	ext := path.Ext(name)
 	fileName := strings.TrimSuffix(name, ext)
 	fileName = utils.EncodeMD5(fileName)
 	return fileName + ext
 }
 
-func GetImagePath() string {
+func GetPath() string {
 	return config.AppSetting.ImageSavePath
 }
 
-func CheckImageExt(fileName string) bool {
+func CheckExt(fileName string) bool {
 	ext := file.GetExt(fileName)
 	for _, allowExt := range config.AppSetting.ImageAllowExts{
 		if strings.ToLower(allowExt) == strings.ToLower(ext) {
@@ -42,7 +42,7 @@ func CheckImageExt(fileName string) bool {
 	return  false
 }
 
-func CheckImageSize(f multipart.File) bool {
+func CheckSize(f multipart.File) bool {
 	size, err := file.GetSize(f)
 	if err != nil {
 		log.Fatal(err)
