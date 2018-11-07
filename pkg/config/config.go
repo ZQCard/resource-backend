@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/Unknwon/goconfig"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -30,6 +31,9 @@ type App struct {
 	PageSize string
 	PageNum  string
 	JwtSecret string
+	ImageSavePath string
+	ImageAllowExts []string
+	ImageMaxSize int
 }
 
 var AppSetting = &App{}
@@ -94,6 +98,20 @@ func init() {
 	if err != nil {
 		log.Fatalf("读取键值出错(%s) : %s", "app.JwtSecret", err)
 	}
+
+	AppSetting.ImageSavePath, err = cfg.GetValue("app", "ImageSavePath")
+	if err != nil {
+		log.Fatalf("读取键值出错(%s) : %s", "app.ImageSavePath", err)
+	}
+
+	allowExts, err := cfg.GetValue("app", "ImageAllowExts")
+	if err != nil {
+		log.Fatalf("读取键值出错(%s) : %s", "app.ImageAllowExts", err)
+	}
+	AppSetting.ImageAllowExts = strings.Split(allowExts, ",")
+
+	AppSetting.ImageMaxSize = cfg.MustInt("app", "ImageMaxSize")
+	AppSetting.ImageMaxSize = AppSetting.ImageMaxSize * 1024 * 1024
 }
 
 func GetConfigParam(section string, key string) (param string) {

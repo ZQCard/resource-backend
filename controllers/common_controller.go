@@ -1,26 +1,49 @@
 package controllers
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"resource-backend/pkg/config"
-	"resource-backend/utils"
-	"strconv"
+	"resource-backend/pkg/upload"
 )
 
 func Upload(c *gin.Context)  {
-	path := "./static/"
-	urlPath := "/static/"
-	file, _ := c.FormFile("file")
-	dst := path + utils.EncodeMD5(file.Filename)
-	err := c.SaveUploadedFile(file, dst)
-	if err != nil {
-		fmt.Println(err)
+	file, fHeader, err := c.Request.FormFile(c.PostForm("name"))
+
+	var code = http.StatusOK
+	data := make(map[string]interface{})
+	if err != nil || fHeader == nil{
+		code = http.StatusBadRequest
+		data["message"] = "文件上传错误:"+ err.Error()
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"url" : config.AppSetting.BaseUrl + ":" + strconv.Itoa(config.ServerSettings.HTTPPort) + urlPath + file.Filename,
-	})
-	return
+	fName := upload.GetImageName(fHeader.Filename)
+	savePath := upload.GetImagePath()
+
+	src := savePath + fName
+
+	if !upload.CheckImageExt(fName) || !upload.CheckImageSize(file) {
+		code = http.StatusForbidden
+		data["message"] = "文件格式不符合"
+	}
+
+	// 已存在文件直接返回url
+	if upload.CheckExist(src) {
+		code = http.StatusOK
+		data["url"] = upload.GetImageFullUrl(fName)
+		c.JSON(code,data)
+		return
+	}
+	err = upload.MakePath(savePath)
+	if err != nil {
+		code = http.StatusInternalServerError
+		data["message"] = "文件目录创建失败"
+	}
+
+	if err = c.SaveUploadedFile(fHeader, src); err != nil{
+		code = http.StatusInternalServerError
+		data["message"] = "文件保存失败"
+	}
+
+	data["url"] = upload.GetImageFullUrl(fName)
+	c.JSON(code,data)
 }
