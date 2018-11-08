@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
-	"log"
 	"net/http"
 	"resource-backend/models"
+	"resource-backend/pkg/logging"
 	"resource-backend/utils"
 )
 
@@ -24,6 +24,7 @@ func Login(c *gin.Context)  {
 	if err != nil {
 		data["message"] = err.Error()
 		c.JSON(http.StatusInternalServerError, data)
+		logging.Error(err)
 		return
 	}
 	data["token"] = token
@@ -33,7 +34,8 @@ func Login(c *gin.Context)  {
 func UserInfo(c *gin.Context)  {
 	clamis, err := utils.ParseToken(c.Query("token"))
 	if err != nil{
-		log.Fatal(err.Error())
+		logging.Error(err)
+		return
 	}
 
 	data := make(map[string]interface{})

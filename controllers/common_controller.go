@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"resource-backend/pkg/logging"
 	"resource-backend/pkg/upload"
 )
 
@@ -27,6 +28,7 @@ func processImage(c *gin.Context)  {
 		code = http.StatusBadRequest
 		data["message"] = "文件上传错误:"+ err.Error()
 		c.JSON(code,data)
+		logging.Error(err.Error())
 		return
 	}
 	uploadType := &upload.Image{}
@@ -55,6 +57,7 @@ func processImage(c *gin.Context)  {
 		code = http.StatusInternalServerError
 		data["message"] = "文件目录创建失败, " + err.Error()
 		c.JSON(code,data)
+		logging.Error(err.Error())
 		return
 	}
 
@@ -62,6 +65,7 @@ func processImage(c *gin.Context)  {
 		code = http.StatusInternalServerError
 		data["message"] = "文件保存失败, " + err.Error()
 		c.JSON(code,data)
+		logging.Error(err.Error())
 		return
 	}
 

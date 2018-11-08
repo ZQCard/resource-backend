@@ -4,8 +4,8 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
-	"log"
 	"resource-backend/pkg/config"
+	"resource-backend/pkg/logging"
 	"time"
 )
 
@@ -36,9 +36,8 @@ func init()  {
 		dbHost,
 		dbName,
 	))
-
 	if err != nil {
-		log.Fatalf("数据库连接失败, : %s", err)
+		logging.Error("数据库连接失败, : %s", err)
 	}
 
 	db.DB().SetMaxIdleConns(10)

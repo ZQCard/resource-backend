@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/Unknwon/goconfig"
-	"log"
+	"resource-backend/pkg/logging"
 	"strings"
 	"time"
 )
@@ -44,13 +44,12 @@ func init() {
 	var err error
 	cfg, err = goconfig.LoadConfigFile("conf/app.ini", "conf/local.ini")
 	if err != nil {
-		log.Fatalf("加载配置文件出错 : %s", err)
+		logging.Fatal("加载配置文件出错 : %s", err)
 	}
-
 	// 读取服务器配置
 	ServerSettings.RunMode, err = cfg.GetValue("server", "RunMode")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "RunMode", err)
+		logging.Fatal("读取键值出错(%s) : %s", "RunMode", err)
 	}
 	ServerSettings.HTTPPort = cfg.MustInt("server", "HTTPPort")
 	ServerSettings.ReadTimeOut = time.Duration(cfg.MustInt("server", "ReadTimeOut", 60)) * time.Second
@@ -59,54 +58,54 @@ func init() {
 	// 读取数据库配置
 	DatabaseSetting.Type, err = cfg.GetValue("database", "Type")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "database.Type", err)
+		logging.Fatal("读取键值出错(%s) : %s", "database.Type", err)
 	}
 	DatabaseSetting.User, err = cfg.GetValue("database", "User")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "database.User", err)
+		logging.Fatal("读取键值出错(%s) : %s", "database.User", err)
 	}
 	DatabaseSetting.Password, err = cfg.GetValue("database", "Password")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "database.Password", err)
+		logging.Fatal("读取键值出错(%s) : %s", "database.Password", err)
 	}
 	DatabaseSetting.Host, err = cfg.GetValue("database", "Host")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "database.Host", err)
+		logging.Fatal("读取键值出错(%s) : %s", "database.Host", err)
 	}
 	DatabaseSetting.Name, err = cfg.GetValue("database", "Name")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "database.Name", err)
+		logging.Fatal("读取键值出错(%s) : %s", "database.Name", err)
 	}
 
 	// 读取应用配置
 	AppSetting.PageSize, err = cfg.GetValue("app", "PageSize")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "app.PageSize", err)
+		logging.Fatal("读取键值出错(%s) : %s", "app.PageSize", err)
 	}
 
 	AppSetting.PageNum, err = cfg.GetValue("app", "PageNum")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "app.PageNum", err)
+		logging.Fatal("读取键值出错(%s) : %s", "app.PageNum", err)
 	}
 
 	AppSetting.BaseUrl, err = cfg.GetValue("app", "BaseUrl")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "app.PageNum", err)
+		logging.Fatal("读取键值出错(%s) : %s", "app.PageNum", err)
 	}
 
 	AppSetting.JwtSecret, err = cfg.GetValue("app", "JwtSecret")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "app.JwtSecret", err)
+		logging.Fatal("读取键值出错(%s) : %s", "app.JwtSecret", err)
 	}
 
 	AppSetting.ImageSavePath, err = cfg.GetValue("app", "ImageSavePath")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "app.ImageSavePath", err)
+		logging.Fatal("读取键值出错(%s) : %s", "app.ImageSavePath", err)
 	}
 
 	allowExts, err := cfg.GetValue("app", "ImageAllowExts")
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", "app.ImageAllowExts", err)
+		logging.Fatal("读取键值出错(%s) : %s", "app.ImageAllowExts", err)
 	}
 	AppSetting.ImageAllowExts = strings.Split(allowExts, ",")
 
@@ -117,7 +116,7 @@ func init() {
 func GetConfigParam(section string, key string) (param string) {
 	param, err  := cfg.GetValue(section, key)
 	if err != nil {
-		log.Fatalf("读取键值出错(%s) : %s", key, err)
+		logging.Fatal("读取键值出错(%s) : %s", key, err)
 	}
 	return
 }

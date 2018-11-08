@@ -4,6 +4,7 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"go-gin-example-master/pkg/logging"
 	"net/http"
 	"resource-backend/models"
 	"resource-backend/pkg/config"
@@ -34,8 +35,9 @@ func Videos(c *gin.Context) {
 	respData["list"], err = models.GetVideosList(PageNum ,PageSize, maps)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
-		respData["message"] = err
+		respData["message"] = err.Error()
 		c.JSON(http.StatusBadRequest, respData)
+		logging.Error(err.Error())
 		return
 	}
 
@@ -65,6 +67,7 @@ func VideoAdd(c *gin.Context)  {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = "添加数据失败," + err.Error()
 		c.JSON(http.StatusBadRequest, respData)
+		logging.Error(err.Error())
 		return
 	}
 	respData["message"] = "添加成功"
@@ -125,6 +128,7 @@ func VideoUpdate(c *gin.Context)  {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = "修改数据失败," + err.Error()
 		c.JSON(http.StatusBadRequest, respData)
+		logging.Error(err.Error())
 		return
 	}
 	respData["message"] = "修改成功"
