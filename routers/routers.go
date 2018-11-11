@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"resource-backend/controllers"
 	"resource-backend/middleware/cors"
+	"resource-backend/middleware/jwt"
 )
 
 func InitRouter() *gin.Engine {
@@ -25,6 +26,7 @@ func InitRouter() *gin.Engine {
 
 	// 权限控制
 	api := router.Group("/")
+	api.Use(jwt.JWT())
 	{
 		// 用户信息
 		api.GET("/user", controllers.UserInfo)

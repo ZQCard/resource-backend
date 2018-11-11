@@ -4,10 +4,10 @@ import (
 	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
-	"go-gin-example-master/pkg/logging"
 	"net/http"
 	"resource-backend/models"
 	"resource-backend/pkg/config"
+	"resource-backend/pkg/logging"
 )
 
 func Videos(c *gin.Context) {
@@ -54,6 +54,8 @@ func VideoAdd(c *gin.Context)  {
 
 	name := c.PostForm("name")
 	href := c.PostForm("href")
+	poster := c.PostForm("poster")
+	description := c.PostForm("description")
 	typeOfVideo := checkType(c.PostForm("type"))
 	if typeOfVideo == -1{
 		respData["code"] = http.StatusBadRequest
@@ -62,7 +64,15 @@ func VideoAdd(c *gin.Context)  {
 		return
 	}
 
-	err := models.AddVideo(name, href, typeOfVideo)
+	video := models.Video{
+		Name:name,
+		Href:href,
+		Type:typeOfVideo,
+		Poster:poster,
+		Description:description,
+	}
+
+	err := models.AddVideo(video)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = "添加数据失败," + err.Error()
@@ -100,6 +110,8 @@ func VideoUpdate(c *gin.Context)  {
 
 	name := c.PostForm("name")
 	href := c.PostForm("href")
+	poster := c.PostForm("poster")
+	description := c.PostForm("description")
 	typeOfVideo := checkType(c.PostForm("type"))
 	if typeOfVideo == -1{
 		respData["code"] = http.StatusBadRequest
@@ -121,6 +133,8 @@ func VideoUpdate(c *gin.Context)  {
 		Name:name,
 		Href:href,
 		Type:typeOfVideo,
+		Poster:poster,
+		Description:description,
 	}
 
 	err := models.PutVideoUpdate(id, video)
@@ -147,6 +161,7 @@ func VideoDelete(c *gin.Context)  {
 		c.JSON(http.StatusBadRequest, respData)
 		return
 	}
+	models.DeleteVideo(id)
 	respData["message"] = "删除成功"
 	c.JSON(http.StatusOK, respData)
 }

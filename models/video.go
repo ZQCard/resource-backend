@@ -11,6 +11,8 @@ type Video struct {
 	Type int   `json:"type"`
 	Name string `json:"name"`
 	Href string `json:"href"`
+	Poster string `json:"poster"`
+	Description string `json:"description"`
 }
 
 func (v Video)Validate() error {
@@ -23,7 +25,11 @@ func (v Video)Validate() error {
 		// 链接不得为空,且为url地址
 		validation.Field(&v.Href,
 			validation.Required.Error("链接地址不得为空"),
-			is.URL.Error("链接必须为URL地址")),
+			is.URL.Error("链接地址错误")),
+
+		validation.Field(&v.Poster,
+			validation.Required.Error("封面图不得为空"),
+			is.URL.Error("封面图地址错误")),
 		)
 }
 
@@ -37,7 +43,7 @@ func GetVideosTotalCount(maps interface{}) (count int) {
 func GetVideosList(page int, pageSize int, maps interface{}) ([]Video, error) {
 	var videos []Video
 
-	err := db.Where(maps).Offset((page - 1) * pageSize).Limit(pageSize).Find(&videos).Error
+	err := db.Where(maps).Select("id, name, poster, href, created_at").Offset((page - 1) * pageSize).Limit(pageSize).Find(&videos).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, err
 	}
@@ -45,12 +51,7 @@ func GetVideosList(page int, pageSize int, maps interface{}) ([]Video, error) {
 }
 
 // 添加数据
-func AddVideo(name string, url string, typeOfVideo int) error {
-	video := Video{
-		Name: name,
-		Href: url,
-		Type: typeOfVideo,
-	}
+func AddVideo(video Video) error {
 	// 数据验证
 	err := video.Validate()
 	if err != nil {
