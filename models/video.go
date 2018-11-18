@@ -67,7 +67,7 @@ func AddVideo(video Video) error {
 func GetVideoById(id int) (bool) {
 	var video Video
 	err := db.Select("id").Where("id = ?", id).First(&video).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		return false
 	}
 	return true
