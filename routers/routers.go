@@ -6,6 +6,7 @@ import (
 	"resource-backend/controllers"
 	"resource-backend/middleware/cors"
 	"resource-backend/middleware/jwt"
+	"resource-backend/models"
 )
 
 func InitRouter() *gin.Engine {
@@ -22,7 +23,27 @@ func InitRouter() *gin.Engine {
 	// 静态文件访问
 	router.StaticFS("/static", http.Dir("static"))
 	// 获取token
-	router.POST("/auth", controllers.Login)
+	router.POST("/login", controllers.Login)
+
+	// 权限控制
+	// 将所有路由存储到数据表中
+	router.GET("/routers/refresh", func(c *gin.Context) {
+		// 存储到数据库中
+		var routes = []models.Routes{}
+
+		for _, v := range router.Routes() {
+			r := models.Routes{}
+			r.Method = v.Method
+			r.Path = v.Path
+			routes = append(routes, r)
+		}
+		models.Refresh(routes)
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+
+	router.GET("/auth", controllers.Auth(router))
 
 	// 权限控制
 	api := router.Group("/")

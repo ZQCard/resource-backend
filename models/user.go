@@ -3,7 +3,6 @@ package models
 import (
 	"github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
-	"resource-backend/utils"
 )
 
 type User struct {
