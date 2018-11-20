@@ -132,4 +132,5 @@ func Allocate(c *gin.Context)  {
 	}
 	resp["message"] = "分配成功"
 	c.JSON(http.StatusOK, resp)
+	return
 }

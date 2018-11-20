@@ -7,6 +7,12 @@ import (
 	"resource-backend/pkg/upload"
 )
 
+func Test(c *gin.Context)  {
+	c.JSON(http.StatusOK, gin.H{
+		"asdas":"sadsa",
+	})
+}
+
 func Upload(c *gin.Context)  {
 	fType := c.PostForm("type")
 	switch fType {
