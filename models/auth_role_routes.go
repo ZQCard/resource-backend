@@ -1,7 +1,10 @@
 package models
 
+import "errors"
+
 type AuthRoleRoutes struct {
 	ID          uint8 `gorm:"primary_key"`
+	Role        string
 	RoutePath   string
 	RouteMethod string
 }
@@ -25,4 +28,16 @@ func CheckRoleExist(role string) bool {
 		return false
 	}
 	return true
+}
+
+func AddRoleRoute(role, route, method string) error {
+	var roleRoute AuthRoleRoutes
+
+	if err := db.Model(AuthRoleRoutes{}).Where(AuthRoleRoutes{Role:role, RoutePath:route, RouteMethod:method}).FirstOrCreate(&roleRoute).Error; err != nil {
+		return err
+	}
+	if roleRoute.ID > 0{
+		return nil
+	}
+	return errors.New("创建数据失败")
 }

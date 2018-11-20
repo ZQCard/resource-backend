@@ -56,9 +56,7 @@ func InitRouter() *gin.Engine {
 		// 权限数据
 		router.GET("/auth", controllers.Auth(router))
 		router.POST("/assign", controllers.Assign)
-		router.POST("/allocate_route", controllers.allocate)
-
-
+		router.POST("/allocate_route", controllers.Allocate)
 
 		// 文件上传
 		api.POST("/upload", controllers.Upload)

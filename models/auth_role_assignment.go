@@ -1,6 +1,8 @@
 package models
 
-import "resource-backend/pkg/logging"
+import (
+	"resource-backend/pkg/logging"
+)
 
 type AuthRoleAssignment struct {
 	ID     uint `gorm:"primary_key"`
@@ -34,9 +36,12 @@ func FindOrCreateAssignment(userId uint, role string) bool {
 	var assignment AuthRoleAssignment
 	assignment.UserId = userId
 	assignment.Role = role
-	if err := db.Where(AuthRoleAssignment{UserId: userId, Role: role}).FirstOrCreate(&assignment).Error; err != nil {
+	if err := db.Model(AuthRoleRoutes{}).Where(AuthRoleAssignment{UserId: userId, Role: role}).FirstOrCreate(&assignment).Error; err != nil {
 		logging.Error(err.Error())
 		return false
+	}
+	if assignment.ID > 0{
+		return true
 	}
 	return true
 }

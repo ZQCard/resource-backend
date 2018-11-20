@@ -6,6 +6,7 @@ import (
 	"resource-backend/models"
 	"resource-backend/pkg/logging"
 	"resource-backend/utils"
+	"strings"
 )
 
 // 获取权限数据集合
@@ -100,7 +101,7 @@ func Assign(c *gin.Context)  {
 		return
 	}
 
-	roleName := c.PostForm("role_name")
+	roleName := c.PostForm("role")
 	if !models.CheckRoleExist(roleName){
 		resp["message"] = "角色不存在,请先创建角色"
 		c.JSON(http.StatusBadRequest, resp)
@@ -111,4 +112,22 @@ func Assign(c *gin.Context)  {
 	resp["message"] = "设置成功"
 	c.JSON(http.StatusOK, resp)
 	return
+}
+
+func Allocate(c *gin.Context)  {
+	resp := make(map[string]interface{})
+	role := c.PostForm("role")
+	route := c.PostForm("route")
+	temp := strings.Split(route, ":")
+	routeName := temp[0]
+	method := temp[1]
+	err := models.AddRoleRoute(role, routeName, method)
+	if err != nil {
+		resp["message"] = err.Error()
+		c.JSON(http.StatusInternalServerError, resp)
+		logging.Error(err.Error())
+		return
+	}
+	resp["message"] = "分配成功"
+	c.JSON(http.StatusOK, resp)
 }
