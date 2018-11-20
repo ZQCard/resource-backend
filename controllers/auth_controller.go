@@ -8,6 +8,7 @@ import (
 	"resource-backend/utils"
 )
 
+// 获取权限数据集合
 func Auth(router *gin.Engine) func(c *gin.Context){
 	return func(c *gin.Context) {
 		respData := make(map[string]interface{})
@@ -38,7 +39,10 @@ func Auth(router *gin.Engine) func(c *gin.Context){
 			c.JSON(http.StatusBadRequest, respData)
 			return
 		}
-		respData["userRoles"] = models.FindRoleByUserId(user.ID)
+		userRole := make(map[string][]string)
+		userRole["has"] = models.FindRoleByUserId(user.ID)
+		userRole["no"] = filterDiff(roles, userRole["has"])
+		respData["userRoles"] = userRole
 
 		// 找出每个角色拥有的路由和未拥有的路由
 		roleRoute := make(map[string]map[string][]string)
@@ -46,7 +50,7 @@ func Auth(router *gin.Engine) func(c *gin.Context){
 			// 临时存放
 			temp := make(map[string][]string)
 			temp["yes"] = models.FindRoutesByRole(v)
-			temp["no"] = trimRoutes(routers, temp["yes"])
+			temp["no"] = filterDiff(routers, temp["yes"])
 			roleRoute[v] = temp
 		}
 		respData["roleRoutes"] = roleRoute
@@ -56,7 +60,8 @@ func Auth(router *gin.Engine) func(c *gin.Context){
 	}
 }
 
-func trimRoutes(all []string, yes []string) (no []string) {
+// 筛选出不在yes数组中all的元素素组
+func filterDiff(all []string, yes []string) (no []string) {
 	if yes == nil {
 		return all
 	}
@@ -70,5 +75,40 @@ func trimRoutes(all []string, yes []string) (no []string) {
 			no = append(no, v)
 		}
 	}
+	return
+}
+
+func Assign(c *gin.Context)  {
+	resp := make(map[string]interface{})
+	claims, err := utils.ParseToken(c.Query("token"))
+	if err != nil {
+		if err != nil{
+			logging.Error(err)
+			return
+		}
+	}
+
+	maps := map[string]interface{}{
+		"username":claims.Username,
+		"password":utils.EncodeMD5(claims.Password),
+	}
+	user, err := models.GetUserByMaps(maps)
+
+	if err != nil {
+		resp["message"] = "用户不存在"
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	roleName := c.PostForm("role_name")
+	if !models.CheckRoleExist(roleName){
+		resp["message"] = "角色不存在,请先创建角色"
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	models.FindOrCreateAssignment(user.ID, roleName)
+	resp["message"] = "设置成功"
+	c.JSON(http.StatusOK, resp)
 	return
 }

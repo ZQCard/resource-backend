@@ -61,7 +61,7 @@ func UserList(c *gin.Context)  {
 }
 
 func UserInfo(c *gin.Context)  {
-	clamis, err := utils.ParseToken(c.Query("token"))
+	claims, err := utils.ParseToken(c.Query("token"))
 	if err != nil{
 		logging.Error(err)
 		return
@@ -70,8 +70,8 @@ func UserInfo(c *gin.Context)  {
 	data := make(map[string]interface{})
 
 	maps := map[string]interface{}{
-		"username":clamis.Username,
-		"password":utils.EncodeMD5(clamis.Password),
+		"username":claims.Username,
+		"password":utils.EncodeMD5(claims.Password),
 	}
 	user, err := models.GetUserByMaps(maps)
 

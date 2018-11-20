@@ -18,3 +18,11 @@ func FindRoutesByRole(role string) (routes []string) {
 	}
 	return
 }
+
+func CheckRoleExist(role string) bool {
+	var authRole AuthRoleRoutes
+	if err := db.Model(AuthRoleRoutes{}).Where("role = ?", role).First(&authRole).Error; err != nil {
+		return false
+	}
+	return true
+}

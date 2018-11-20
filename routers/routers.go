@@ -6,7 +6,6 @@ import (
 	"resource-backend/controllers"
 	"resource-backend/middleware/cors"
 	"resource-backend/middleware/jwt"
-	"resource-backend/models"
 )
 
 func InitRouter() *gin.Engine {
@@ -24,26 +23,6 @@ func InitRouter() *gin.Engine {
 	router.StaticFS("/static", http.Dir("static"))
 	// 获取token
 	router.POST("/login", controllers.Login)
-
-	// 权限控制
-	// 将所有路由存储到数据表中
-	router.GET("/routers/refresh", func(c *gin.Context) {
-		// 存储到数据库中
-		var routes = []models.Routes{}
-
-		for _, v := range router.Routes() {
-			r := models.Routes{}
-			r.Method = v.Method
-			r.Path = v.Path
-			routes = append(routes, r)
-		}
-		models.Refresh(routes)
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-
-	router.GET("/auth", controllers.Auth(router))
 
 	// 权限控制
 	api := router.Group("/")
@@ -71,6 +50,15 @@ func InitRouter() *gin.Engine {
 		api.PUT("/video", controllers.VideoUpdate)
 		// 删除视频
 		api.DELETE("/video", controllers.VideoDelete)
+
+
+		// 权限控制
+		// 权限数据
+		router.GET("/auth", controllers.Auth(router))
+		router.POST("/assign", controllers.Assign)
+		router.POST("/allocate_route", controllers.allocate)
+
+
 
 		// 文件上传
 		api.POST("/upload", controllers.Upload)
