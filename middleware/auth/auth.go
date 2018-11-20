@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"resource-backend/models"
@@ -26,9 +27,18 @@ func AUTH() gin.HandlerFunc {
 		routes := models.GetRoutesByUserId(user.ID)
 		flag := false
 		for  _, v := range routes{
-			if v == {
-
+			if v == c.Request.Method +":"+ c.Request.URL.Path{
+				flag = true
+				break
 			}
+		}
+		if !flag {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"code" : code,
+				"message" : "暂无权限噢~",
+			})
+			c.Abort()
+			return
 		}
 		c.Next()
 	}

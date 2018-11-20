@@ -75,7 +75,3 @@ func UserDelete(id int) error {
 func UserRecover(id int) {
 	db.Model(&User{}).Where("id = ?", id).Unscoped().Update("deleted_at", nil)
 }
-
-func GetRoutesByUserId(userId uint) []string {
-	
-}

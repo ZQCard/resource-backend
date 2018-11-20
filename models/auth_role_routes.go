@@ -41,3 +41,22 @@ func AddRoleRoute(role, route, method string) error {
 	}
 	return errors.New("创建数据失败")
 }
+
+func GetRoutesByUserId(userId uint) []string {
+	// 这里查两次表,然后在查拥有路由
+	var authRoleAssignment []AuthRoleAssignment
+	db.Model(AuthRoleAssignment{}).Where("user_id = ?", userId).Select("role").Find(&authRoleAssignment)
+
+	var roles []string
+	for _, v := range authRoleAssignment{
+		roles = append(roles, v.Role)
+	}
+
+	var routes []string
+	var authRoleRoutes []AuthRoleRoutes
+	db.Model(AuthRoleRoutes{}).Where("role in (?)", roles).Select("route_path, route_method").Find(&authRoleRoutes)
+	for _, v := range authRoleRoutes{
+		routes = append(routes, v.RouteMethod + ":" + v.RoutePath)
+	}
+	return routes
+}

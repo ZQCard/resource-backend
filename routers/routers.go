@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"resource-backend/controllers"
+	"resource-backend/middleware/auth"
 	"resource-backend/middleware/cors"
 	"resource-backend/middleware/jwt"
 )
@@ -24,9 +25,11 @@ func InitRouter() *gin.Engine {
 	// 获取token
 	router.POST("/login", controllers.Login)
 
-	// 权限控制
 	api := router.Group("/")
+	// JWT
 	api.Use(jwt.JWT())
+	// 权限控制
+	api.Use(auth.AUTH())
 	{
 		// 用户列表
 		api.GET("/users", controllers.UserList)
