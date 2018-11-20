@@ -26,6 +26,8 @@ func Auth(router *gin.Engine) func(c *gin.Context){
 		// 当前用户拥有的角色
 		clamis, err := utils.ParseToken(c.Query("token"))
 		if err != nil{
+			respData["message"] = err.Error()
+			c.JSON(http.StatusBadRequest, respData)
 			logging.Error(err)
 			return
 		}

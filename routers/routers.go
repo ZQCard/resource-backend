@@ -50,10 +50,7 @@ func InitRouter() *gin.Engine {
 		api.PUT("/video", controllers.VideoUpdate)
 		// 删除视频
 		api.DELETE("/video", controllers.VideoDelete)
-
-
 		// 权限控制
-		// 权限数据
 		router.GET("/auth", controllers.Auth(router))
 		router.POST("/assign", controllers.Assign)
 		router.POST("/allocate_route", controllers.Allocate)
