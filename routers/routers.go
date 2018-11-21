@@ -61,12 +61,15 @@ func InitRouter() *gin.Engine {
 		// 文件上传
 		api.POST("/upload", controllers.Upload)
 
-		// 七牛云文件上传
+		// 七牛云文件上传 服务器
 		api.POST("/qiniu-upload", controllers.QiNiuUpload)
-		// 七牛云上传的token
+		// 七牛云上传的token 客户端
 		api.GET("/qiniu-token", controllers.QiNiuToken)
 		// 七牛云回调
-		api.GET("//qiniu/upload/callback", controllers.QiNiuCallBack)
+		router.POST("/qiniu/upload/callback", controllers.QiNiuCallBack)
+		// 检测文件是否已经存在
+		router.POST("/qiniu/file/check", controllers.CheckQiNiuFileExist)
+
 	}
 	return router
 }
