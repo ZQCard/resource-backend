@@ -24,7 +24,7 @@ func Auth(router *gin.Engine) func(c *gin.Context){
 		roles := models.RoleList()
 		respData["roles"] = roles
 		// 当前用户拥有的角色
-		clamis, err := utils.ParseToken(c.Query("token"))
+		claims, err := utils.ParseToken(c.Query("token"))
 		if err != nil{
 			respData["message"] = err.Error()
 			c.JSON(http.StatusBadRequest, respData)
@@ -33,8 +33,8 @@ func Auth(router *gin.Engine) func(c *gin.Context){
 		}
 
 		maps := map[string]interface{}{
-			"username":clamis.Username,
-			"password":utils.EncodeMD5(clamis.Password),
+			"username":claims.Username,
+			"password":utils.EncodeMD5(claims.Password),
 		}
 		user, err := models.GetUserByMaps(maps)
 		if err != nil {
@@ -121,8 +121,8 @@ func Allocate(c *gin.Context)  {
 	role := c.PostForm("role")
 	route := c.PostForm("route")
 	temp := strings.Split(route, ":")
-	routeName := temp[0]
-	method := temp[1]
+	method := temp[0]
+	routeName := temp[1]
 	err := models.AddRoleRoute(role, routeName, method)
 	if err != nil {
 		resp["message"] = err.Error()

@@ -43,6 +43,8 @@ func InitRouter() *gin.Engine {
 		api.DELETE("/user", controllers.UserDelete)
 		// 恢复用户
 		api.PATCH("/user/recover", controllers.UserRecover)
+
+
 		// 影视专区
 		api.GET("/videos", controllers.Videos)
 		// 添加视频
@@ -53,6 +55,14 @@ func InitRouter() *gin.Engine {
 		api.PUT("/video", controllers.VideoUpdate)
 		// 删除视频
 		api.DELETE("/video", controllers.VideoDelete)
+
+		// 微视频
+		// 列表
+		api.GET("/micro_videos", controllers.MicroVideoList)
+		// 添加
+		api.POST("/micro_video", controllers.MicroVideoAdd)
+
+
 		// 权限控制
 		api.POST("/assign", controllers.Assign)
 		api.POST("/allocate", controllers.Allocate)

@@ -121,7 +121,16 @@ func QiNiuUpload(c *gin.Context) {
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = err.Error()
+		c.JSON(http.StatusOK, respData)
 		logging.Error(err.Error())
+		return
+	}
+
+	// 判断文件是否已经存在
+	key := models.FindFileByName(fHeader.Filename)
+	if key != ""{
+		respData["url"] = url + key
+		c.JSON(http.StatusOK, respData)
 		return
 	}
 
