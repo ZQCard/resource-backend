@@ -164,5 +164,5 @@ func QiNiuUpload(c *gin.Context) {
 }
 
 func QiNiuCallBack(c *gin.Context) {
-	
+
 }
