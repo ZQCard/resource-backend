@@ -8,6 +8,7 @@ import (
 	"github.com/qiniu/api.v7/storage"
 	"io/ioutil"
 	"net/http"
+	"resource-backend/models"
 	"resource-backend/pkg/config"
 	"resource-backend/pkg/logging"
 	"resource-backend/pkg/upload"
@@ -20,12 +21,6 @@ var (
 	url         = config.GetConfigParam("QINIU", "QINIU_CDN_DOMAIN")
 	callbackUrl = config.GetConfigParam("QINIU", "QINIU_CALLBACK_URL")
 )
-
-func Test(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"asdas": "sadsa",
-	})
-}
 
 func Upload(c *gin.Context) {
 	fType := c.PostForm("type")
@@ -88,6 +83,20 @@ func processImage(c *gin.Context) {
 	c.JSON(code, data)
 }
 
+func CheckQiNiuFileExist(c *gin.Context)  {
+	var respData = make(map[string]interface{})
+	respData["code"] = 200
+	name := c.PostForm("name")
+	key := models.FindFileByName(name)
+	if key != ""{
+		respData["url"] = url + key
+	}else {
+		respData["url"] = key
+	}
+	c.JSON(http.StatusOK, respData)
+	return
+}
+
 func QiNiuToken(c *gin.Context) {
 	var respData = make(map[string]interface{})
 	respData["code"] = 200
@@ -120,7 +129,7 @@ func QiNiuUpload(c *gin.Context) {
 	putPolicy := storage.PutPolicy{
 		Scope:            bucket,
 		CallbackURL:      callbackUrl,
-		CallbackBody:     `{"key":"$(key)","hash":"$(etag)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}`,
+		CallbackBody:     `{"key":"$(key)","fsize":$(fsize),"bucket":"$(bucket)","name":"$(x:name)"}`,
 		CallbackBodyType: "application/json",
 	}
 
@@ -158,11 +167,29 @@ func QiNiuUpload(c *gin.Context) {
 		logging.Error(err.Error())
 		return
 	}
-	respData["url"] = url + "/" + ret.Key
+	respData["url"] = url + ret.Key
 	c.JSON(http.StatusOK, respData)
 	return
 }
 
 func QiNiuCallBack(c *gin.Context) {
-
+	var respData = make(map[string]interface{})
+	var file models.Files
+	err := c.BindJSON(&file)
+	if err != nil {
+		respData["message"] = err.Error()
+		c.JSON(http.StatusInternalServerError, respData)
+		logging.Error(err.Error())
+		return
+	}
+	err = models.AddFileRecord(&file)
+	if err != nil {
+		respData["message"] = err.Error()
+		c.JSON(http.StatusInternalServerError, respData)
+		logging.Error(err.Error())
+		return
+	}
+	respData["info"] = file
+	c.JSON(http.StatusOK, respData)
+	return
 }
