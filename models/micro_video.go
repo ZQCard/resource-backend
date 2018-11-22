@@ -4,6 +4,7 @@ import (
 	"github.com/go-ozzo/ozzo-validation"
 	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
 )
 
 type MicroVideo struct {
@@ -43,15 +44,19 @@ func AddMicroVideo(microVideo *MicroVideo) error {
 }
 
 // 查看数据详情
-func GetMicroVideoView(maps interface{}) (MicroVideo MicroVideo) {
-	db.Where(maps).First(&MicroVideo)
-	return
+func ViewMicroVideo(url string) (err error) {
+	res := db.Model(MicroVideo{}).Where("url = ?", url).UpdateColumn("view", gorm.Expr("view + ?", 1))
+	if res.RowsAffected == 0 {
+		return errors.New("视频不存在")
+	}
+	return nil
 }
 
 // 删除数据
-func DeleteMicroVideo(id int) (err error) {
-	if err := db.Where("id = ?", id).Delete(&MicroVideo{}).Error; err != nil {
-		return err
+func DeleteMicroVideo(url string) (err error) {
+	ret := db.Where("url = ?", url).Delete(&MicroVideo{})
+	if ret.RowsAffected == 0 {
+		return errors.New("视频不存在")
 	}
 	return nil
 }

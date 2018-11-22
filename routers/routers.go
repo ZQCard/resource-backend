@@ -61,7 +61,10 @@ func InitRouter() *gin.Engine {
 		api.GET("/micro_videos", controllers.MicroVideoList)
 		// 添加
 		api.POST("/micro_video", controllers.MicroVideoAdd)
-
+		// 观看
+		api.GET("/micro_video", controllers.MicroVideoView)
+		// 删除
+		api.DELETE("/micro_video", controllers.MicroVideoDelete)
 
 		// 权限控制
 		api.POST("/assign", controllers.Assign)
