@@ -72,12 +72,26 @@ func InitRouter() *gin.Engine {
 		api.GET("/auth", controllers.Auth(router))
 
 		// 个人隐私
+		// 照片相关
 		// 列表
 		api.GET("/personal/photos", controllers.PersonalPhotoList)
 		// 添加
 		api.POST("/personal/photo", controllers.PersonalPhotoAdd)
 		// 删除
 		api.DELETE("/personal/photo", controllers.PersonalPhotoDelete)
+
+		// 账单相关
+		// 金额统计图
+		// api.GET("/personal/summary", controllers.PersonalPhotoList)
+		// 列表
+		api.GET("/personal/bills", controllers.PersonalBillList)
+		// 添加
+		api.POST("/personal/bill", controllers.PersonalBillAdd)
+		// 编辑
+		api.PUT("/personal/bill", controllers.PersonalBillUpdate)
+		// 删除
+		api.DELETE("/personal/bill", controllers.PersonalBillDelete)
+
 
 		// 文件上传
 		api.POST("/upload", controllers.Upload)
