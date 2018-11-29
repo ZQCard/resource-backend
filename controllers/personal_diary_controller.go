@@ -7,10 +7,9 @@ import (
 	"resource-backend/models"
 	"resource-backend/pkg/config"
 	"resource-backend/pkg/logging"
-	"strings"
 )
 
-func PersonalBillList(c *gin.Context) {
+func PersonalDiaryList(c *gin.Context) {
 	// 错误信息
 	var err error
 	// 返回数据
@@ -22,7 +21,7 @@ func PersonalBillList(c *gin.Context) {
 	PageNum := com.StrTo(c.DefaultQuery("page", config.AppSetting.PageNum)).MustInt()
 
 	// 获取数据列表
-	respData["list"], respData["totalCount"], err = models.PersonalBillList(PageNum ,PageSize)
+	respData["list"], respData["totalCount"], err = models.PersonalDiaryList(PageNum ,PageSize)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = err.Error()
@@ -34,34 +33,17 @@ func PersonalBillList(c *gin.Context) {
 	return
 }
 
-func PersonalBillView(c *gin.Context) {
+func PersonalDiaryAdd(c *gin.Context)  {
 	respData := make(map[string]interface{})
 	respData["code"] = http.StatusOK
-	// 条件
-	maps := make(map[string]interface{})
-	maps["id"] = com.StrTo(c.Query("id")).MustInt()
-	respData["info"] = models.PersonalBillView(maps)
-	c.JSON(http.StatusOK, respData)
-}
 
-func PersonalBillAdd(c *gin.Context)  {
-	respData := make(map[string]interface{})
-	respData["code"] = http.StatusOK
-	typeOfMoney := com.StrTo(c.PostForm("type")).MustInt()
-	money,_ := com.StrTo(c.PostForm("money")).Float64()
-	date := c.PostForm("date")
-	category := c.PostForm("category")
-	dateOfArray := strings.Split(date, "-")
-	PersonalBill := &models.PersonalBill{
-		Type:typeOfMoney,
-		Money:money,
-		Category:category,
-		Year:dateOfArray[0],
-		Month:dateOfArray[1],
-		Day:dateOfArray[2],
+	PersonalDiary := &models.PersonalDiary{
+		Title:c.PostForm("title"),
+		Content:c.PostForm("content"),
+		Secret:c.PostForm("secret"),
 	}
 
-	err := models.PersonalBillAdd(PersonalBill)
+	err := models.PersonalDiaryAdd(PersonalDiary)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = "添加数据失败," + err.Error()
@@ -73,23 +55,35 @@ func PersonalBillAdd(c *gin.Context)  {
 	c.JSON(http.StatusOK, respData)
 }
 
-func PersonalBillUpdate(c *gin.Context)  {
+func PersonalDiaryView(c *gin.Context) {
 	respData := make(map[string]interface{})
 	respData["code"] = http.StatusOK
+	// 条件
+	maps := make(map[string]interface{})
+	maps["id"] = com.StrTo(c.Query("id")).MustInt()
+	diary := models.PersonalDiaryView(maps)
+	secret := c.Query("secret")
+	if secret == "" || diary.Secret != secret {
+		respData["code"] = http.StatusNotFound
+		respData["message"] = "密码错误"
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
+	return
+	respData["info"] = diary
+	c.JSON(http.StatusOK, respData)
+}
 
-	typeOfMoney := com.StrTo(c.PostForm("type")).MustInt()
-	date := c.PostForm("date")
-	dateOfArray := strings.Split(date, "-")
-	maps := make(map[string]uint8)
-	maps["id"],_ = com.StrTo(c.PostForm("id")).Uint8()
-	PersonalBill := models.PersonalBillView(maps)
-	PersonalBill.Type = typeOfMoney
-	PersonalBill.Money,_ = com.StrTo(c.PostForm("money")).Float64()
-	PersonalBill.Category = c.PostForm("category")
-	PersonalBill.Year = dateOfArray[0]
-	PersonalBill.Month = dateOfArray[1]
-	PersonalBill.Day = dateOfArray[2]
-	err := models.PersonalBillUpdate(&PersonalBill)
+func PersonalDiaryUpdate(c *gin.Context)  {
+	respData := make(map[string]interface{})
+	respData["code"] = http.StatusOK
+	maps := make(map[string]interface{})
+	maps["id"] = 3
+	PersonalDiary := models.PersonalDiaryView(maps)
+	PersonalDiary.Title = c.PostForm("title")
+	PersonalDiary.Content = c.PostForm("content")
+	PersonalDiary.Secret = c.PostForm("secret")
+	err := models.PersonalDiaryUpdate(&PersonalDiary)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = "修改数据失败," + err.Error()
@@ -101,12 +95,12 @@ func PersonalBillUpdate(c *gin.Context)  {
 	c.JSON(http.StatusOK, respData)
 }
 
-func PersonalBillDelete(c *gin.Context)  {
+func PersonalDiaryDelete(c *gin.Context)  {
 	resp := make(map[string]interface{})
 	resp["code"] = http.StatusOK
 
 	id := com.StrTo(c.Query("id")).MustInt()
-	err := models.PersonalBillDelete(id)
+	err := models.PersonalDiaryDelete(id)
 	if err != nil {
 		resp["code"] = http.StatusInternalServerError
 		resp["message"] = err.Error()

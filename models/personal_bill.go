@@ -50,7 +50,7 @@ func PersonalBillUpdate(personalBill *PersonalBill) (err error) {
 func PersonalBillDelete(id int) (err error) {
 	ret := db.Where("id = ?", id).Delete(&PersonalBill{})
 	if ret.RowsAffected == 0 {
-		return errors.New("视频不存在")
+		return errors.New("账单不存在")
 	}
 	return nil
 }

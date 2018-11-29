@@ -87,11 +87,23 @@ func InitRouter() *gin.Engine {
 		api.GET("/personal/bills", controllers.PersonalBillList)
 		// 添加
 		api.POST("/personal/bill", controllers.PersonalBillAdd)
+		// 详情
+		api.GET("/personal/bill", controllers.PersonalBillView)
 		// 编辑
 		api.PUT("/personal/bill", controllers.PersonalBillUpdate)
 		// 删除
 		api.DELETE("/personal/bill", controllers.PersonalBillDelete)
 
+		// 日记相关
+		api.GET("/personal/diaries", controllers.PersonalDiaryList)
+		// 添加
+		api.POST("/personal/diary", controllers.PersonalDiaryAdd)
+		// 详情
+		api.GET("/personal/diary", controllers.PersonalDiaryView)
+		// 编辑
+		api.PUT("/personal/diary", controllers.PersonalDiaryUpdate)
+		// 删除
+		api.DELETE("/personal/diary", controllers.PersonalDiaryDelete)
 
 		// 文件上传
 		api.POST("/upload", controllers.Upload)
