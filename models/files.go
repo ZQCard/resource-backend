@@ -10,7 +10,7 @@ type Files struct {
 }
 
 func AddFileRecord(file *Files) error{
-	if err := db.Debug().Create(file).Error; err != nil {
+	if err := db.Create(file).Error; err != nil {
 		return err
 	}
 	return nil

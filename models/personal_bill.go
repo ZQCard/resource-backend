@@ -2,8 +2,6 @@ package models
 
 import (
 	"errors"
-	"github.com/go-ozzo/ozzo-validation"
-	"github.com/go-ozzo/ozzo-validation/is"
 	"github.com/jinzhu/gorm"
 )
 
@@ -17,14 +15,6 @@ type PersonalBill struct {
 	Category string  `json:"category"`
 }
 
-func (v PersonalBill)Validate() error {
-	return validation.ValidateStruct(&v,
-		validation.Field(&v.Type,
-			validation.Required.Error("链接地址不得为空"),
-			is.URL.Error("图片上传错误")),
-	)
-}
-
 // 获取数据列表
 func PersonalBillList(page int, pageSize int) (PersonalBills []PersonalBill, count int, err error) {
 	err = db.Offset((page - 1) * pageSize).Limit(pageSize).Find(&PersonalBills).Count(&count).Error
@@ -36,11 +26,6 @@ func PersonalBillList(page int, pageSize int) (PersonalBills []PersonalBill, cou
 
 // 添加数据
 func PersonalBillAdd(PersonalBill *PersonalBill) error {
-	// 数据验证
-	err := PersonalBill.Validate()
-	if err != nil {
-		return err
-	}
 	if err := db.Create(PersonalBill).Error; err != nil {
 		return err
 	}
@@ -48,19 +33,14 @@ func PersonalBillAdd(PersonalBill *PersonalBill) error {
 }
 
 // 查看数据详情
-func PersonalBillView(maps interface{}) (personalBill Video) {
+func PersonalBillView(maps interface{}) (personalBill PersonalBill) {
 	db.Where(maps).First(&personalBill)
 	return
 }
 
 // 更新数据
 func PersonalBillUpdate(personalBill *PersonalBill) (err error) {
-	// 数据验证
-	err = personalBill.Validate()
-	if err != nil {
-		return err
-	}
-	if err = db.Debug().Save(personalBill).Error; err != nil {
+	if err = db.Save(personalBill).Error; err != nil {
 		return err
 	}
 	return nil

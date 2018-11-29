@@ -59,7 +59,7 @@ func UserUpdate(user *User) (err error) {
 	if err != nil {
 		return err
 	}
-	if err = db.Debug().Save(user).Error; err != nil {
+	if err = db.Save(user).Error; err != nil {
 		return err
 	}
 	return nil

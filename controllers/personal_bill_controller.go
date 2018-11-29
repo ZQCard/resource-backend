@@ -7,7 +7,7 @@ import (
 	"resource-backend/models"
 	"resource-backend/pkg/config"
 	"resource-backend/pkg/logging"
-	"resource-backend/utils"
+	"strings"
 )
 
 func PersonalBillList(c *gin.Context) {
@@ -37,12 +37,21 @@ func PersonalBillList(c *gin.Context) {
 func PersonalBillAdd(c *gin.Context)  {
 	respData := make(map[string]interface{})
 	respData["code"] = http.StatusOK
-
-	PersonalBill := models.PersonalBill{
-
+	typeOfMoney := com.StrTo(c.PostForm("type")).MustInt()
+	money,_ := com.StrTo(c.PostForm("money")).Float64()
+	date := c.PostForm("date")
+	category := c.PostForm("category")
+	dateOfArray := strings.Split(date, "-")
+	PersonalBill := &models.PersonalBill{
+		Type:typeOfMoney,
+		Money:money,
+		Category:category,
+		Year:dateOfArray[0],
+		Month:dateOfArray[1],
+		Day:dateOfArray[2],
 	}
 
-	err := models.PersonalBillAdd(&PersonalBill)
+	err := models.PersonalBillAdd(PersonalBill)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = "添加数据失败," + err.Error()
@@ -58,20 +67,19 @@ func PersonalBillUpdate(c *gin.Context)  {
 	respData := make(map[string]interface{})
 	respData["code"] = http.StatusOK
 
-	maps := map[string]interface{}{
-		"id":com.StrTo(c.PostForm("id")).MustInt(),
-	}
-	user, err := models.GetUserByMaps(maps)
-	if err != nil {
-		respData["code"] = http.StatusInternalServerError
-		respData["message"] = err.Error()
-		c.JSON(http.StatusBadRequest, respData)
-		return
-	}
-	user.Avatar = c.PostForm("avatar")
-	user.Password = utils.EncodeMD5(c.PostForm("avatar"))
-
-	err = models.UserUpdate(&user)
+	typeOfMoney := com.StrTo(c.PostForm("type")).MustInt()
+	date := c.PostForm("date")
+	dateOfArray := strings.Split(date, "-")
+	maps := make(map[string]uint8)
+	maps["id"],_ = com.StrTo(c.PostForm("id")).Uint8()
+	PersonalBill := models.PersonalBillView(maps)
+	PersonalBill.Type = typeOfMoney
+	PersonalBill.Money,_ = com.StrTo(c.PostForm("money")).Float64()
+	PersonalBill.Category = c.PostForm("category")
+	PersonalBill.Year = dateOfArray[0]
+	PersonalBill.Month = dateOfArray[1]
+	PersonalBill.Day = dateOfArray[2]
+	err := models.PersonalBillUpdate(&PersonalBill)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError
 		respData["message"] = "修改数据失败," + err.Error()
