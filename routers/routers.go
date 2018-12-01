@@ -23,7 +23,7 @@ func InitRouter() *gin.Engine {
 	// 静态文件访问
 	router.StaticFS("/static", http.Dir("static"))
 	// 获取token
-	router.POST("/login", controllers.Login)
+	router.POST("/user_login", controllers.Login)
 
 	api := router.Group("/")
 	// JWT
@@ -112,11 +112,6 @@ func InitRouter() *gin.Engine {
 		api.POST("/qiniu-upload", controllers.QiNiuUpload)
 		// 七牛云上传的token 客户端
 		api.GET("/qiniu-token", controllers.QiNiuToken)
-		// 七牛云回调
-		router.POST("/qiniu/upload/callback", controllers.QiNiuCallBack)
-		// 检测文件是否已经存在
-		router.POST("/qiniu/file/check", controllers.CheckQiNiuFileExist)
-
 	}
 	return router
 }

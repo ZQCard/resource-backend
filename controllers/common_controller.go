@@ -8,7 +8,6 @@ import (
 	"github.com/qiniu/api.v7/storage"
 	"io/ioutil"
 	"net/http"
-	"resource-backend/models"
 	"resource-backend/pkg/config"
 	"resource-backend/pkg/logging"
 	"resource-backend/pkg/upload"
@@ -38,7 +37,7 @@ func Upload(c *gin.Context) {
 func processImage(c *gin.Context) {
 	var code = http.StatusOK
 	data := make(map[string]interface{})
-	file, fHeader, err := c.Request.FormFile("file")
+	file, fHeader, err := c.Request.FormFile("image")
 	if err != nil || fHeader == nil {
 		data["message"] = "文件上传错误:" + err.Error()
 		c.JSON(code, data)
@@ -79,22 +78,8 @@ func processImage(c *gin.Context) {
 		return
 	}
 
-	data["url"] = uploadType.GetName(fName)
+	data["url"] = uploadType.GetFullUrl(fName)
 	c.JSON(code, data)
-}
-
-func CheckQiNiuFileExist(c *gin.Context)  {
-	var respData = make(map[string]interface{})
-	respData["code"] = 200
-	name := c.PostForm("name")
-	key := models.FindFileByName(name)
-	if key != ""{
-		respData["url"] = url + key
-	}else {
-		respData["url"] = key
-	}
-	c.JSON(http.StatusOK, respData)
-	return
 }
 
 func QiNiuToken(c *gin.Context) {
@@ -123,14 +108,6 @@ func QiNiuUpload(c *gin.Context) {
 		respData["message"] = err.Error()
 		c.JSON(http.StatusOK, respData)
 		logging.Error(err.Error())
-		return
-	}
-
-	// 判断文件是否已经存在
-	key := models.FindFileByName(fHeader.Filename)
-	if key != ""{
-		respData["url"] = url + key
-		c.JSON(http.StatusOK, respData)
 		return
 	}
 
@@ -177,28 +154,6 @@ func QiNiuUpload(c *gin.Context) {
 		return
 	}
 	respData["url"] = url + ret.Key
-	c.JSON(http.StatusOK, respData)
-	return
-}
-
-func QiNiuCallBack(c *gin.Context) {
-	var respData = make(map[string]interface{})
-	var file models.Files
-	err := c.BindJSON(&file)
-	if err != nil {
-		respData["message"] = err.Error()
-		c.JSON(http.StatusInternalServerError, respData)
-		logging.Error(err.Error())
-		return
-	}
-	err = models.AddFileRecord(&file)
-	if err != nil {
-		respData["message"] = err.Error()
-		c.JSON(http.StatusInternalServerError, respData)
-		logging.Error(err.Error())
-		return
-	}
-	respData["info"] = file
 	c.JSON(http.StatusOK, respData)
 	return
 }
