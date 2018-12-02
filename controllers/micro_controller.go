@@ -40,7 +40,14 @@ func MicroVideoAdd(c *gin.Context)  {
 
 	url := c.PostForm("url")
 
-
+	// 检测视频是否已经存在
+	exist := models.FindMicroVideoByUrl(url)
+	if exist == true {
+		respData["code"] = http.StatusExpectationFailed
+		respData["message"] = "视频已存在"
+		c.JSON(http.StatusExpectationFailed, respData)
+		return
+	}
 	microVideo := models.MicroVideo{
 		Url:url,
 	}
