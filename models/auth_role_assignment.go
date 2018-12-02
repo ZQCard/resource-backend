@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"resource-backend/pkg/logging"
 )
 
@@ -25,14 +26,15 @@ func RoleList() (roles []string) {
 
 func FindRoleByUserId(id uint) (roles []string) {
 	var assignments []AuthRoleAssignment
-	db.Model(AuthRoleAssignment{}).Where("id = ?", id).Select("role").Find(&assignments)
+	db.Model(AuthRoleAssignment{}).Where("user_id = ?", id).Select("role").Find(&assignments)
+	fmt.Println(assignments)
 	for _, v := range assignments {
 		roles = append(roles, v.Role)
 	}
 	return
 }
 
-func FindOrCreateAssignment(userId uint, role string) bool {
+func AssignRoles(userId uint, role string) bool {
 	var assignment AuthRoleAssignment
 	assignment.UserId = userId
 	assignment.Role = role

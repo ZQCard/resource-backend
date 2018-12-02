@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"resource-backend/models"
@@ -83,34 +84,32 @@ func filterDiff(all []string, yes []string) (no []string) {
 
 func Assign(c *gin.Context)  {
 	resp := make(map[string]interface{})
-	claims, err := utils.ParseToken(c.Query("token"))
-	if err != nil {
-		if err != nil{
-			logging.Error(err)
-			return
-		}
-	}
 
 	maps := map[string]interface{}{
-		"username":claims.Username,
-		"password":utils.EncodeMD5(claims.Password),
+		"id":com.StrTo(c.Query("id")).MustInt(),
 	}
 	user, err := models.GetUserByMaps(maps)
-
 	if err != nil {
 		resp["message"] = "用户不存在"
 		c.JSON(http.StatusBadRequest, resp)
 		return
 	}
 
-	roleName := c.PostForm("role")
-	if !models.CheckRoleExist(roleName){
-		resp["message"] = "角色不存在,请先创建角色"
-		c.JSON(http.StatusBadRequest, resp)
-		return
+	// 要授权的角色数组
+	roleNames := strings.Split(c.PostForm("roles"), ",")
+	for _,role := range roleNames{
+		if !models.CheckRoleExist(role){
+			resp["message"] = "角色 "+role+" 不存在,请先创建角色"
+			c.JSON(http.StatusBadRequest, resp)
+			return
+		}
 	}
-
-	models.FindOrCreateAssignment(user.ID, roleName)
+	// 已经拥有的角色
+	rolesHas := models.FindRoleByUserId(user.ID)
+	rolesHasNot := filterDiff(roleNames,rolesHas)
+	for _,role := range rolesHasNot{
+		models.AssignRoles(user.ID, role)
+	}
 	resp["message"] = "设置成功"
 	c.JSON(http.StatusOK, resp)
 	return
@@ -131,6 +130,51 @@ func Allocate(c *gin.Context)  {
 		return
 	}
 	resp["message"] = "分配成功"
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+func Assignment(c *gin.Context)  {
+	resp := make(map[string]interface{})
+	resp["code"] = http.StatusOK
+
+	claims, err := utils.ParseToken(c.Query("token"))
+	if err != nil {
+		if err != nil{
+			logging.Error(err)
+			return
+		}
+	}
+
+	maps := map[string]interface{}{
+		"username":claims.Username,
+		"password":utils.EncodeMD5(claims.Password),
+	}
+	user, err := models.GetUserByMaps(maps)
+
+	if err != nil {
+		resp["message"] = "用户不存在"
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	id := com.StrTo(c.Query("id")).MustInt()
+	if id == 0 {
+		resp["code"] = http.StatusBadRequest
+		resp["message"] = "参数错误!"
+		c.JSON(http.StatusInternalServerError, resp)
+		logging.Error("授权参数错误"+user.Username)
+		return
+	}
+	// 角色列表
+	roles := models.RoleList()
+	resp["roles"] = roles
+
+	// 查找所有的和拥有的角色
+	userRole := make(map[string][]string)
+	userRole["has"] = models.FindRoleByUserId(user.ID)
+	userRole["no"] = filterDiff(roles, userRole["has"])
+	resp["userRoles"] = userRole
 	c.JSON(http.StatusOK, resp)
 	return
 }

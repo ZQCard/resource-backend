@@ -67,7 +67,11 @@ func InitRouter() *gin.Engine {
 		api.DELETE("/micro_video", controllers.MicroVideoDelete)
 
 		// 权限控制
+		// 角色授权情况
+		api.GET("/assignment", controllers.Assignment)
+		// 角色授予
 		api.POST("/assign", controllers.Assign)
+
 		api.POST("/allocate", controllers.Allocate)
 		api.GET("/auth", controllers.Auth(router))
 
