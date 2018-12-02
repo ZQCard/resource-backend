@@ -73,6 +73,11 @@ func UserInfo(c *gin.Context)  {
 		"username":claims.Username,
 		"password":utils.EncodeMD5(claims.Password),
 	}
+	if c.Query("id") != ""{
+		maps = map[string]interface{}{
+			"id":com.StrTo(c.Query("id")).MustInt(),
+		}
+	}
 	user, err := models.GetUserByMaps(maps)
 
 	if err != nil {
@@ -166,7 +171,7 @@ func UserDelete(c *gin.Context)  {
 func UserRecover(c *gin.Context) {
 	respData := make(map[string]interface{})
 	respData["code"] = http.StatusOK
-	id := com.StrTo(c.PostForm("id")).MustInt()
+	id := com.StrTo(c.Query("id")).MustInt()
 	models.UserRecover(id)
 	respData["message"] = "恢复成功"
 	c.JSON(http.StatusOK, respData)
