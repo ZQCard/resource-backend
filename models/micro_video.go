@@ -23,7 +23,8 @@ func (v MicroVideo) Validate() error {
 
 // 获取数据列表
 func MicroVideoList(page int, pageSize int) (microVideos []MicroVideo, count int, err error) {
-	err = db.Select("url,view").Offset((page - 1) * pageSize).Limit(pageSize).Order("id DESC").Find(&microVideos).Count(&count).Error
+	db.Find(&microVideos).Count(&count)
+	err = db.Select("url,view").Offset((page - 1) * pageSize).Limit(pageSize).Order("id DESC").Find(&microVideos).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, count, err
 	}

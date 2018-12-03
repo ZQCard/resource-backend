@@ -23,7 +23,8 @@ func (v PersonalPhoto) Validate() error {
 
 // 获取数据列表
 func PersonalPhotoList(page int, pageSize int) (PersonalPhotos []PersonalPhoto, count int, err error) {
-	err = db.Offset((page - 1) * pageSize).Limit(pageSize).Find(&PersonalPhotos).Count(&count).Error
+	db.Find(&PersonalPhotos).Count(&count)
+	err = db.Offset((page - 1) * pageSize).Limit(pageSize).Find(&PersonalPhotos).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, count, err
 	}

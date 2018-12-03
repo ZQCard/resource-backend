@@ -35,7 +35,8 @@ func GetUserByMaps(maps interface{}) (user User, err error) {
 }
 
 func UserList(page int, pageSize int) (users []User, count int, err error)   {
-	err = db.Unscoped().Offset((page - 1) * pageSize).Limit(pageSize).Find(&users).Count(&count).Error
+	db.Find(&users).Count(&count)
+	err = db.Unscoped().Offset((page - 1) * pageSize).Limit(pageSize).Find(&users).Error
 	if err != nil{
 		return
 	}
