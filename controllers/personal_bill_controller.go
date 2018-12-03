@@ -80,8 +80,9 @@ func PersonalBillUpdate(c *gin.Context)  {
 	typeOfMoney := com.StrTo(c.PostForm("type")).MustInt()
 	date := c.PostForm("date")
 	dateOfArray := strings.Split(date, "-")
-	maps := make(map[string]uint8)
-	maps["id"],_ = com.StrTo(c.PostForm("id")).Uint8()
+	maps := map[string]interface{}{
+		"id":com.StrTo(c.PostForm("id")).MustInt(),
+	}
 	PersonalBill := models.PersonalBillView(maps)
 	PersonalBill.Type = typeOfMoney
 	PersonalBill.Money,_ = com.StrTo(c.PostForm("money")).Float64()

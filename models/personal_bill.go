@@ -35,7 +35,7 @@ func PersonalBillAdd(PersonalBill *PersonalBill) error {
 
 // 查看数据详情
 func PersonalBillView(maps interface{}) (personalBill PersonalBill) {
-	db.Where(maps).First(&personalBill)
+	db.Debug().Where(maps).First(&personalBill)
 	return
 }
 
