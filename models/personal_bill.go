@@ -17,7 +17,8 @@ type PersonalBill struct {
 
 // 获取数据列表
 func PersonalBillList(page int, pageSize int) (PersonalBills []PersonalBill, count int, err error) {
-	err = db.Offset((page - 1) * pageSize).Limit(pageSize).Order("id DESC").Find(&PersonalBills).Count(&count).Error
+	db.Find(&PersonalBills).Count(&count)
+	err = db.Offset((page - 1) * pageSize).Limit(pageSize).Order("id DESC").Find(&PersonalBills).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, count, err
 	}

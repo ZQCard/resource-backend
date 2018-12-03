@@ -14,7 +14,8 @@ type PersonalDiary struct {
 
 // 获取数据列表
 func PersonalDiaryList(page int, pageSize int) (PersonalDiarys []PersonalDiary, count int, err error) {
-	err = db.Offset((page - 1) * pageSize).Limit(pageSize).Order("id DESC").Find(&PersonalDiarys).Count(&count).Error
+	db.Find(&PersonalDiarys).Count(&count)
+	err = db.Offset((page - 1) * pageSize).Limit(pageSize).Order("id DESC").Find(&PersonalDiarys).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, count, err
 	}
