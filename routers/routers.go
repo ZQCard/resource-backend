@@ -71,9 +71,12 @@ func InitRouter() *gin.Engine {
 		api.GET("/assignment", controllers.Assignment)
 		// 角色授予
 		api.POST("/assign", controllers.Assign)
-
-		api.POST("/allocate", controllers.Allocate)
+		// 角色路由分配情况
 		api.GET("/auth", controllers.Auth(router))
+		// 路由分配
+		api.POST("/role", controllers.Allocate)
+		// 删除角色
+		api.DELETE("/role", controllers.RoleRemove)
 
 		// 个人隐私
 		// 照片相关

@@ -138,8 +138,10 @@ func UserUpdate(c *gin.Context)  {
 		return
 	}
 	user.Avatar = c.PostForm("avatar")
-	user.Password = utils.EncodeMD5(c.PostForm("avatar"))
-
+	password := c.PostForm("password")
+	if password != ""{
+		user.Password = utils.EncodeMD5(password)
+	}
 	err = models.UserUpdate(&user)
 	if err != nil {
 		respData["code"] = http.StatusInternalServerError

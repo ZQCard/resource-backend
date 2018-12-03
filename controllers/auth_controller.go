@@ -24,29 +24,6 @@ func Auth(router *gin.Engine) func(c *gin.Context){
 		// 角色列表
 		roles := models.RoleList()
 		respData["roles"] = roles
-		// 当前用户拥有的角色
-		claims, err := utils.ParseToken(c.Query("token"))
-		if err != nil{
-			respData["message"] = err.Error()
-			c.JSON(http.StatusBadRequest, respData)
-			logging.Error(err)
-			return
-		}
-
-		maps := map[string]interface{}{
-			"username":claims.Username,
-			"password":utils.EncodeMD5(claims.Password),
-		}
-		user, err := models.GetUserByMaps(maps)
-		if err != nil {
-			respData["message"] = "用户不存在"
-			c.JSON(http.StatusBadRequest, respData)
-			return
-		}
-		userRole := make(map[string][]string)
-		userRole["has"] = models.FindRoleByUserId(user.ID)
-		userRole["no"] = filterDiff(roles, userRole["has"])
-		respData["userRoles"] = userRole
 
 		// 找出每个角色拥有的路由和未拥有的路由
 		roleRoute := make(map[string]map[string][]string)
@@ -86,7 +63,7 @@ func Assign(c *gin.Context)  {
 	resp := make(map[string]interface{})
 
 	maps := map[string]interface{}{
-		"id":com.StrTo(c.Query("id")).MustInt(),
+		"id":com.StrTo(c.PostForm("id")).MustInt(),
 	}
 	user, err := models.GetUserByMaps(maps)
 	if err != nil {
@@ -96,7 +73,7 @@ func Assign(c *gin.Context)  {
 	}
 
 	// 要授权的角色数组
-	roleNames := strings.Split(c.PostForm("roles"), ",")
+	roleNames := strings.Split(strings.TrimSuffix(c.PostForm("roles"), ","), ",")
 	for _,role := range roleNames{
 		if !models.CheckRoleExist(role){
 			resp["message"] = "角色 "+role+" 不存在,请先创建角色"
@@ -106,9 +83,14 @@ func Assign(c *gin.Context)  {
 	}
 	// 已经拥有的角色
 	rolesHas := models.FindRoleByUserId(user.ID)
-	rolesHasNot := filterDiff(roleNames,rolesHas)
-	for _,role := range rolesHasNot{
-		models.AssignRoles(user.ID, role)
+	assign := filterDiff(roleNames,rolesHas)
+	remove := filterDiff(rolesHas, roleNames)
+	err = models.AssignRemoveRoles(user.ID, assign, remove)
+	if err != nil {
+		resp["code"] = http.StatusInternalServerError
+		resp["message"] = "授权失败,"+err.Error()
+		c.JSON(http.StatusBadRequest, resp)
+		return
 	}
 	resp["message"] = "设置成功"
 	c.JSON(http.StatusOK, resp)
@@ -118,11 +100,14 @@ func Assign(c *gin.Context)  {
 func Allocate(c *gin.Context)  {
 	resp := make(map[string]interface{})
 	role := c.PostForm("role")
-	route := c.PostForm("route")
-	temp := strings.Split(route, ":")
-	method := temp[0]
-	routeName := temp[1]
-	err := models.AddRoleRoute(role, routeName, method)
+	// 路由处理
+	routes := strings.Split(strings.TrimSuffix(c.PostForm("routes"), ","), ",")
+	routesHas := models.FindRoutesByRole(role)
+
+	assignRoutes := filterDiff(routes, routesHas)
+	removeRoutes := filterDiff(routesHas, routes)
+
+	err := models.AssignRemoveRoutes(role, assignRoutes, removeRoutes)
 	if err != nil {
 		resp["message"] = err.Error()
 		c.JSON(http.StatusInternalServerError, resp)
@@ -172,9 +157,40 @@ func Assignment(c *gin.Context)  {
 
 	// 查找所有的和拥有的角色
 	userRole := make(map[string][]string)
-	userRole["has"] = models.FindRoleByUserId(user.ID)
+	userRole["has"] = models.FindRoleByUserId(uint(id))
 	userRole["no"] = filterDiff(roles, userRole["has"])
 	resp["userRoles"] = userRole
+	c.JSON(http.StatusOK, resp)
+	return
+}
+
+func RoleRemove(c *gin.Context)  {
+	resp := make(map[string]interface{})
+	resp["code"] = http.StatusOK
+	name := c.Query("name")
+	if name == ""{
+		resp["code"] = http.StatusBadRequest
+		resp["message"] = "参数错误"
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	users := models.FindUserByRole(name)
+	if len(users) != 0{
+		resp["code"] = http.StatusInternalServerError
+		resp["message"] = "该角色有用户使用,不得删除"
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+
+	err := models.DeleteRoutesByRole(name)
+	if err != nil {
+		resp["code"] = http.StatusInternalServerError
+		resp["message"] = "角色删除失败,"+err.Error()
+		c.JSON(http.StatusBadRequest, resp)
+		return
+	}
+	resp["message"] = "角色删除成功"
 	c.JSON(http.StatusOK, resp)
 	return
 }
