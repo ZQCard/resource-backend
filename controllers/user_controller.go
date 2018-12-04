@@ -179,3 +179,26 @@ func UserRecover(c *gin.Context) {
 	c.JSON(http.StatusOK, respData)
 	return
 }
+
+func UserApply(c *gin.Context)  {
+	respData := make(map[string]interface{})
+	respData["code"] = http.StatusOK
+	username := c.PostForm("username")
+	email := c.PostForm("email")
+	password := c.PostForm("password")
+	subject := "申请成为用户"
+	content := "用户("+ username + ") 提交申请,密码为(" + password + ") ,联系邮箱为 " + email
+	err := SendToMail(email, subject, content)
+	if err != nil {
+		respData["code"] = http.StatusInternalServerError
+		respData["message"] = "邮件发送失败," + err.Error()
+		c.JSON(http.StatusInternalServerError, respData)
+		logging.Error(err.Error())
+		return
+	}
+	respData["message"] = "申请成功,成功后会邮箱通知您."
+	c.JSON(http.StatusOK, respData)
+	return
+}
+
+

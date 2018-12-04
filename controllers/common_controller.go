@@ -3,9 +3,11 @@ package controllers
 import (
 	"bytes"
 	"context"
+	"github.com/Unknwon/com"
 	"github.com/gin-gonic/gin"
 	"github.com/qiniu/api.v7/auth/qbox"
 	"github.com/qiniu/api.v7/storage"
+	"gopkg.in/gomail.v2"
 	"io/ioutil"
 	"net/http"
 	"resource-backend/pkg/config"
@@ -156,4 +158,25 @@ func QiNiuUpload(c *gin.Context) {
 	respData["url"] = url + ret.Key
 	c.JSON(http.StatusOK, respData)
 	return
+}
+
+func SendToMail(email string, subject string, content string) error{
+	host := config.GetConfigParam("email", "MAIL_HOST")
+	port := com.StrTo(config.GetConfigParam("email", "MAIL_PORT")).MustInt()
+	username := config.GetConfigParam("email", "MAIL_USERNAME")
+	password := config.GetConfigParam("email", "MAIL_PASSWORD")
+
+	m := gomail.NewMessage()
+	m.SetHeader("From", username)
+	m.SetHeader("To", email)
+	m.SetHeader("Subject", subject)
+	m.SetBody("text/html", content)
+
+	d := gomail.NewDialer(host, port, username, password)
+
+	// Send the email to Bob, Cora and Dan.
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+	return nil
 }

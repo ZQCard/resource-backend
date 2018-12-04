@@ -43,7 +43,8 @@ func InitRouter() *gin.Engine {
 		api.DELETE("/user", controllers.UserDelete)
 		// 恢复用户
 		api.PATCH("/user/recover", controllers.UserRecover)
-
+		// 申请成为用户
+		api.POST("/user/apply", controllers.UserApply)
 
 		// 影视专区
 		api.GET("/videos", controllers.Videos)
