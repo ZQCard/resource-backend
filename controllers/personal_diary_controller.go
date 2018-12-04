@@ -69,7 +69,6 @@ func PersonalDiaryView(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, respData)
 		return
 	}
-	return
 	respData["info"] = diary
 	c.JSON(http.StatusOK, respData)
 }
@@ -78,8 +77,14 @@ func PersonalDiaryUpdate(c *gin.Context)  {
 	respData := make(map[string]interface{})
 	respData["code"] = http.StatusOK
 	maps := make(map[string]interface{})
-	maps["id"] = 3
+	maps["id"] = com.StrTo(c.PostForm("id")).MustInt()
 	PersonalDiary := models.PersonalDiaryView(maps)
+	if int(PersonalDiary.ID) != maps["id"] {
+		respData["code"] = http.StatusBadRequest
+		respData["message"] = "参数错误,"
+		c.JSON(http.StatusBadRequest, respData)
+		return
+	}
 	PersonalDiary.Title = c.PostForm("title")
 	PersonalDiary.Content = c.PostForm("content")
 	PersonalDiary.Secret = c.PostForm("secret")
