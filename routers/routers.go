@@ -90,7 +90,7 @@ func InitRouter() *gin.Engine {
 
 		// 账单相关
 		// 金额统计图
-		// api.GET("/personal/summary", controllers.PersonalPhotoList)
+		api.GET("/personal/bill/summary", controllers.PersonalBillSummary)
 		// 列表
 		api.GET("/personal/bills", controllers.PersonalBillList)
 		// 添加

@@ -8,7 +8,67 @@ import (
 	"resource-backend/pkg/config"
 	"resource-backend/pkg/logging"
 	"strings"
+	"time"
 )
+
+func PersonalBillSummary(c *gin.Context)  {
+	// 返回数据
+	respData := make(map[string]interface{})
+	respData["code"] = http.StatusOK
+
+	// 支出
+	expandMaps := make(map[string]interface{})
+	expandMaps["type"] = models.PersonalBillExpand
+	// 总消费
+	respData["expand_all"] = models.PersonalBillSummaryByCategory(expandMaps)
+
+	// 年度消费
+	expandMaps["year"] = time.Now().Year()
+	respData["expand_year"] = models.PersonalBillSummaryByCategory(expandMaps)
+	// 本月消费
+	expandMaps["month"] = time.Now().Format("01")
+	respData["expand_month"] = models.PersonalBillSummaryByCategory(expandMaps)
+
+	// 收入
+	incomeMaps := make(map[string]interface{})
+	incomeMaps["type"] = models.PersonalBillIncome
+	// 总收入
+	respData["income_all"] = models.PersonalBillSummaryByCategory(incomeMaps)
+	// 年度收入
+	incomeMaps["year"] = time.Now().Year()
+	respData["income_year"] = models.PersonalBillSummaryByCategory(incomeMaps)
+	// 本月收入
+	incomeMaps["month"] = time.Now().Format("01")
+	respData["income_month"] = models.PersonalBillSummaryByCategory(incomeMaps)
+
+	// 收入支出对比
+	// 总数
+	incomeExpandMaps := make(map[string]interface{})
+	respData["expand_income_all"] = models.PersonalBillSummaryByType(incomeExpandMaps)
+	// 年度
+	incomeExpandMaps["year"] = time.Now().Year()
+	respData["expand_income_year"] = models.PersonalBillSummaryByType(incomeExpandMaps)
+	// 月数
+	incomeExpandMaps["month"] = time.Now().Format("01")
+	respData["expand_income_month"] = models.PersonalBillSummaryByType(incomeExpandMaps)
+
+	// 年度收入支出折线图
+	year := c.Query("year")
+	eachMonthMap := make(map[string]interface{})
+	if year == "" {
+		eachMonthMap["year"] = time.Now().Year()
+	}else {
+		eachMonthMap["year"] = year
+	}
+	respData["year_expand"], respData["year_income"]= models.PersonalBillSummaryByYear(eachMonthMap)
+
+
+
+	// 总结
+	respData["summary"] = models.PersonalBillSummary()
+	c.JSON(http.StatusOK, respData)
+	return
+}
 
 func PersonalBillList(c *gin.Context) {
 	// 错误信息

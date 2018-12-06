@@ -5,6 +5,9 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const PersonalBillExpand  = 0
+const PersonalBillIncome  = 1
+
 type PersonalBill struct {
 	Model
 	Type     int     `json:"type"`
@@ -13,6 +16,76 @@ type PersonalBill struct {
 	Month    string  `json:"month"`
 	Day      string  `json:"day"`
 	Category string  `json:"category"`
+}
+
+func PersonalBillSummary() map[int]float64 {
+	rows, err := db.Model(&PersonalBill{}).Select("SUM(money) as value, type as kind").Group("type").Rows()
+	summary := make(map[int]float64)
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var money float64
+			var kind int
+			rows.Scan(&money, &kind)
+			summary[kind] = money
+		}
+	}
+	return summary
+}
+
+func PersonalBillSummaryByCategory(maps interface{}) interface{} {
+	var data []map[string]interface{}
+	rows, err := db.Model(&PersonalBill{}).Where(maps).Select("SUM(money) as value, category as name").Group("category").Rows()
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			temp := make(map[string]interface{})
+			var money float64
+			var name string
+			rows.Scan(&money, &name)
+			temp["name"] = name
+			temp["value"] = money
+			data = append(data, temp)
+		}
+	}
+	return data
+}
+
+func PersonalBillSummaryByType(maps interface{}) interface{} {
+	var data []map[string]interface{}
+	rows, err := db.Model(&PersonalBill{}).Where(maps).Select("SUM(money) as value, type as kind").Group("type").Rows()
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			temp := make(map[string]interface{})
+			var money float64
+			var kind int
+			rows.Scan(&money, &kind)
+			if kind == PersonalBillExpand{
+				temp["name"] = "支出"
+			}else {
+				temp["name"] = "收入"
+			}
+			temp["value"] = money
+			data = append(data, temp)
+		}
+	}
+	return data
+}
+
+func PersonalBillSummaryByYear(maps interface{}) (map[string]float64, map[string]float64) {
+	var moneys []PersonalBill
+	db.Model(&PersonalBill{}).Where(maps).Select("money, type, month").Order("month").Find(&moneys)
+	moneysIncome := make(map[string]float64)
+	moneysExpand := make(map[string]float64)
+	for _, v := range moneys{
+		if v.Type == PersonalBillExpand {
+			moneysExpand[v.Month] += v.Money
+		}else {
+			moneysIncome[v.Month] += v.Money
+		}
+	}
+	return moneysExpand, moneysIncome
 }
 
 // 获取数据列表
