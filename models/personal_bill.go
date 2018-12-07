@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/jinzhu/gorm"
+	"strconv"
 )
 
 const PersonalBillExpand  = 0
@@ -78,11 +79,21 @@ func PersonalBillSummaryByYear(maps interface{}) (map[string]float64, map[string
 	db.Model(&PersonalBill{}).Where(maps).Select("money, type, month").Order("month").Find(&moneys)
 	moneysIncome := make(map[string]float64)
 	moneysExpand := make(map[string]float64)
+
 	for _, v := range moneys{
 		if v.Type == PersonalBillExpand {
 			moneysExpand[v.Month] += v.Money
 		}else {
 			moneysIncome[v.Month] += v.Money
+		}
+	}
+	for i := 1; i <= 12; i++ {
+		if _,ok := moneysExpand[strconv.Itoa(i)]; !ok{
+			moneysExpand[strconv.Itoa(i)] = 0
+		}
+
+		if _,ok := moneysIncome[strconv.Itoa(i)]; !ok{
+			moneysIncome[strconv.Itoa(i)] = 0
 		}
 	}
 	return moneysExpand, moneysIncome

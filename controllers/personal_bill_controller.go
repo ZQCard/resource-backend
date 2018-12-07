@@ -60,7 +60,7 @@ func PersonalBillSummary(c *gin.Context)  {
 	}else {
 		eachMonthMap["year"] = year
 	}
-	respData["year_expand"], respData["year_income"]= models.PersonalBillSummaryByYear(eachMonthMap)
+	respData["year_expand"], respData["year_income"] = models.PersonalBillSummaryByYear(eachMonthMap)
 
 
 
