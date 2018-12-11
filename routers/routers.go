@@ -24,6 +24,9 @@ func InitRouter() *gin.Engine {
 	router.StaticFS("/static", http.Dir("static"))
 	// 获取token
 	router.POST("/user_login", controllers.Login)
+	router.POST("/logout", controllers.Logout)
+	// 七牛云上传回调
+	router.POST("/qiniu_callback", controllers.QiNiuCallback)
 
 	api := router.Group("/")
 	// JWT
