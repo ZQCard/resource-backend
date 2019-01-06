@@ -87,7 +87,6 @@ func processImage(c *gin.Context) {
 func QiNiuToken(c *gin.Context) {
 	var respData = make(map[string]interface{})
 	respData["code"] = 200
-
 	putPolicy := storage.PutPolicy{
 		Scope:            bucket,
 		CallbackURL:      callbackUrl,
@@ -97,6 +96,19 @@ func QiNiuToken(c *gin.Context) {
 	mac := qbox.NewMac(accessKey, secretKey)
 	uploadToken := putPolicy.UploadToken(mac)
 	respData["token"] = uploadToken
+	c.JSON(http.StatusOK, respData)
+	return
+}
+
+func QiNiuCallback(c *gin.Context)  {
+	type Callback struct {
+		Hash string `json:"hash"`
+	}
+	var callback Callback
+	
+	var respData = make(map[string]interface{})
+	c.BindJSON(&callback)
+	respData["url"] = url + callback.Hash
 	c.JSON(http.StatusOK, respData)
 	return
 }

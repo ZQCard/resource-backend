@@ -37,6 +37,10 @@ func Login(c *gin.Context)  {
 	c.JSON(http.StatusOK, data)
 }
 
+func Logout(c *gin.Context)  {
+	c.JSON(http.StatusOK, gin.H{})
+}
+
 func UserList(c *gin.Context)  {
 	// 错误信息
 	var err error
