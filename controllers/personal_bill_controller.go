@@ -26,7 +26,7 @@ func PersonalBillSummary(c *gin.Context)  {
 	expandMaps["year"] = time.Now().Year()
 	respData["expand_year"] = models.PersonalBillSummaryByCategory(expandMaps)
 	// 本月消费
-	expandMaps["month"] = time.Now().Format("01")
+	expandMaps["month"] = strings.TrimPrefix(time.Now().Format("01"), "0")
 	respData["expand_month"] = models.PersonalBillSummaryByCategory(expandMaps)
 
 	// 收入
@@ -38,7 +38,7 @@ func PersonalBillSummary(c *gin.Context)  {
 	incomeMaps["year"] = time.Now().Year()
 	respData["income_year"] = models.PersonalBillSummaryByCategory(incomeMaps)
 	// 本月收入
-	incomeMaps["month"] = time.Now().Format("01")
+	incomeMaps["month"] = strings.TrimPrefix(time.Now().Format("01"), "0")
 	respData["income_month"] = models.PersonalBillSummaryByCategory(incomeMaps)
 
 	// 收入支出对比
@@ -49,7 +49,7 @@ func PersonalBillSummary(c *gin.Context)  {
 	incomeExpandMaps["year"] = time.Now().Year()
 	respData["expand_income_year"] = models.PersonalBillSummaryByType(incomeExpandMaps)
 	// 月数
-	incomeExpandMaps["month"] = time.Now().Format("01")
+	incomeExpandMaps["month"] = strings.TrimPrefix(time.Now().Format("01"), "0")
 	respData["expand_income_month"] = models.PersonalBillSummaryByType(incomeExpandMaps)
 
 	// 年度收入支出折线图
